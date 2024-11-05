@@ -1,4 +1,4 @@
-package sap.ass01.layered.businessLogic;
+package sap.ass2.ebikes.domain;
 
 /**
  * Represents a 2-dimensional point in a Cartesian coordinate system.
