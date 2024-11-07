@@ -13,15 +13,16 @@ import sap.ass2.users.domain.User;
 import sap.ass2.users.domain.UserEventObserver;
 import sap.ass2.users.domain.UserRepository;
 
-public class UserManagerImpl implements UsersManagerAPI {
+public class UsersManagerImpl implements UsersManagerAPI {
 
     private final UserRepository userRepository;
     private final List<User> users;
     private List<UserEventObserver> observers;
-    private Map<UserEventObserver, String> specificUserObservers; // The string is the user id. TODO : Magari trasformare in stringa a lista di observer.
+    private Map<UserEventObserver, String> specificUserObservers; // The string is the user id. TODO : Magari trasformare in mappa da stringa a lista di observer.
 
-    UserManagerImpl(UserRepository userRepository) throws RepositoryException {
+    UsersManagerImpl(UserRepository userRepository) throws RepositoryException {
         this.userRepository = userRepository;
+        // FIXME: forse meglio usare strutture che gestiscono la concorrenza?
         this.observers = new ArrayList<>();
         this.specificUserObservers = new HashMap<>();
         this.users = userRepository.getUsers();
@@ -35,10 +36,10 @@ public class UserManagerImpl implements UsersManagerAPI {
 
     @Override
     public JsonArray getAllUsers() {
-        return users.stream().map(UserManagerImpl::toJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
+        return users.stream().map(UsersManagerImpl::toJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
     }
 
-    private void invokeObservers(User user) {
+    private void notifyObservers(User user) {
         this.observers.forEach(o -> o.userUpdated(user.getId(), user.getCredit()));
         this.specificUserObservers.entrySet().stream()
             .filter(e -> e.getValue().equals(user.getId()))
@@ -49,14 +50,14 @@ public class UserManagerImpl implements UsersManagerAPI {
     public JsonObject createUser(String userID) throws RepositoryException {
         var user = new User(userID, 0);
         this.userRepository.saveUser(user);
-        this.invokeObservers(user);
-        return UserManagerImpl.toJSON(user);
+        this.notifyObservers(user);
+        return UsersManagerImpl.toJSON(user);
     }
 
     @Override
     public Optional<JsonObject> getUserByID(String userID) {
         var user = this.users.stream().filter(u -> u.getId().equals(userID)).findFirst();
-        return user.map(UserManagerImpl::toJSON);
+        return user.map(UsersManagerImpl::toJSON);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class UserManagerImpl implements UsersManagerAPI {
         var user = userOpt.get(); // Get user.
         user.rechargeCredit(credit); // Recharge user credits.
         this.userRepository.saveUser(user); // Persist user changes.
-        this.invokeObservers(user); // FIXME: Possibile incosistenza se il repo non registra l'utente.
+        this.notifyObservers(user); // FIXME: Possibile incosistenza se il repo non registra l'utente.
     }
 
     @Override
@@ -82,7 +83,7 @@ public class UserManagerImpl implements UsersManagerAPI {
         var user = userOpt.get(); // Get user.
         user.decreaseCredit(amount); // Decrease user credits.
         this.userRepository.saveUser(user); // Persist user changes.
-        this.invokeObservers(user); 
+        this.notifyObservers(user); 
     }
 
     @Override

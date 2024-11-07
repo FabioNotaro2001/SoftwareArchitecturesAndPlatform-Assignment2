@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
     private void saveObj(String id, JsonObject obj) throws RepositoryException {
 		try {
 			// Open a file for writing (create a new one if it doesn't exist).
-			FileWriter fw = new FileWriter(Paths.get(dbaseFolder, id + ".json").toString());
+			FileWriter fw = new FileWriter(Path.of(dbaseFolder, id + ".json").toString());
 			java.io.BufferedWriter wr = new BufferedWriter(fw);	
 		
 			// Write the JsonObject as a file.
@@ -97,7 +97,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> getUserByID(String id) throws RepositoryException {
-        File userFile = new File(dbaseFolder + File.separator + id + ".json");
+        File userFile = new File(Path.of(dbaseFolder, id + ".json").toString());
 
 		if (!userFile.exists()) {
 			return Optional.empty();  

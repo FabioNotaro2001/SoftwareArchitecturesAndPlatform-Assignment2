@@ -1,6 +1,6 @@
 package sap.ass2.ebikes.domain; // Package declaration for the business logic layer.
 
-public class EBike  {	
+public class Ebike  {	
     private String id; // The unique identifier for the electric bike.
     
     // Enum representing the possible states of an electric bike.
@@ -18,7 +18,7 @@ public class EBike  {
     private int batteryLevel;  // The battery level of the bike, represented as a percentage (0 to 100).
     
     // Constructor for creating an EBike with a unique ID, initialized to available state and default location.
-    public EBike(String id) {
+    public Ebike(String id) {
         this.id = id;
         this.state = EBikeState.AVAILABLE; 
         this.loc = new P2d(0,0); 
@@ -27,7 +27,7 @@ public class EBike  {
     }
 
     // Constructor for creating an EBike with a unique ID and specified position, initialized to available state.
-    public EBike(String id, P2d pos) {
+    public Ebike(String id, P2d pos) {
         this.id = id;
         this.state = EBikeState.AVAILABLE; 
         this.loc = pos; 
@@ -36,7 +36,7 @@ public class EBike  {
     }
 
     // Constructor for creating an EBike with full specifications including ID, state, location, direction, speed, and battery level.
-    public EBike(String id, EBikeState eState, P2d loc, V2d direction, double speed, int batteryLevel) {
+    public Ebike(String id, EBikeState eState, P2d loc, V2d direction, double speed, int batteryLevel) {
         this.id = id; 
         this.state = eState; 
         this.loc = loc; 
@@ -66,6 +66,16 @@ public class EBike  {
         return batteryLevel; 
     }
     
+    public void setBatteryLevel(int batteryLevel) {
+        this.batteryLevel = batteryLevel < 0 ? 0 : (batteryLevel > 100 ? 100 : batteryLevel);
+
+        if (batteryLevel == 0 && state != EBikeState.DISMISSED) {
+            state = EBikeState.MAINTENANCE; 
+        } else if (batteryLevel > 0 && state == EBikeState.MAINTENANCE) {
+            state = EBikeState.AVAILABLE; 
+        }
+    }
+
     // Decreases the battery level by the specified amount and updates the state if it drops below zero.
     public void decreaseBatteryLevel(int delta) {
         batteryLevel -= delta; 
@@ -78,6 +88,11 @@ public class EBike  {
     // Checks if the bike is currently available.
     public boolean isAvailable() {
         return state == EBikeState.AVAILABLE; 
+    }
+
+    // Checks if the bike is currently in use.
+    public boolean isInUse() {
+        return state == EBikeState.IN_USE; 
     }
 
     // Updates the bike's state to the provided state.
@@ -113,11 +128,6 @@ public class EBike  {
     // Returns the current location of the bike.
     public P2d getLocation(){
         return loc; 
-    }
-
-    // Returns an EBikeInfo object containing the bike's current information.
-    public EBikeInfo getInfo(){
-        return new EBikeInfo(this.id, this.state, this.loc, this.direction, this.speed, this.batteryLevel); 
     }
     
     // Returns a string representation of the bike's current state.

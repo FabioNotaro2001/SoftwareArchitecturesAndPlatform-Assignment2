@@ -71,14 +71,6 @@ public class Ride {
     }
 
     /**
-     * Returns information about the ride encapsulated in a RideInfo object.
-     * @return A RideInfo object containing the ride ID, user ID, ebike ID, and ongoing status.
-     */
-    public RideInfo getInfo() {
-        return new RideInfo(this.id, this.user.getId(), this.ebike.getId(), true); 
-    }
-
-    /**
      * Returns a string representation of the ride in JSON-like format.
      * @return A string representing the ride's ID, user ID, and ebike ID.
      */
