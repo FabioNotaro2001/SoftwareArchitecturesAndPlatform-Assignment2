@@ -14,4 +14,6 @@ public interface EbikesManagerAPI {
     Optional<JsonObject> getBikeByID(String bikeID);
     void updateBike(String bikeID, Optional<EBikeState> state, Optional<Double> locationX, Optional<Double> locationY, Optional<Double> directionX, Optional<Double> directionY, Optional<Double> speed, Optional<Integer> batteryLevel);
     void subscribeForEbikeEvents(EbikeEventObserver observer);
+    void subscribeForEbikeEvents(String bikeID, EbikeEventObserver observer);
+    void unsubscribeForEbikeEvents(String bikeID, EbikeEventObserver observer);
 }

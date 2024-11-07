@@ -64,14 +64,6 @@ public class User {
     }
 
     /**
-     * Returns the user information encapsulated in a UserInfo object.
-     * @return A UserInfo object containing the user's ID and credit balance.
-     */
-    public UserInfo getInfo() {
-        return new UserInfo(this.id, this.credit); // Creates and returns a new UserInfo object.
-    }
-
-    /**
      * Returns a string representation of the user in JSON-like format.
      * @return A string representing the user's ID and credit balance.
      */
