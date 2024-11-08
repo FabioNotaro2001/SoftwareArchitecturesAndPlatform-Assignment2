@@ -9,10 +9,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import io.vertx.core.json.JsonObject;
 import sap.ass2.ebikes.domain.Ebike;
-import sap.ass2.ebikes.domain.Ebike.EBikeState;
+import sap.ass2.ebikes.domain.Ebike.EbikeState;
 import sap.ass2.ebikes.domain.EbikeRepository;
 import sap.ass2.ebikes.domain.P2d;
 import sap.ass2.ebikes.domain.RepositoryException;
@@ -94,7 +93,7 @@ public class EbikeRepositoryImpl implements EbikeRepository {
 						// Create an EBike object from the JsonObject.
 						Ebike ebike = new Ebike(
 							obj.getString("ID"),
-							EBikeState.valueOf(obj.getString("STATE")),
+							EbikeState.valueOf(obj.getString("STATE")),
 							new P2d(obj.getDouble("LOC_X"), obj.getDouble("LOC_Y")),
 							new V2d(obj.getDouble("DIR_X"), obj.getDouble("DIR_Y")),
 							obj.getDouble("SPEED"),
@@ -126,7 +125,7 @@ public class EbikeRepositoryImpl implements EbikeRepository {
 				// Return an EBike object wrapped in an Optional.
 				return Optional.of(new Ebike(
 					obj.getString("ID"),
-					EBikeState.valueOf(obj.getString("STATE")),
+					EbikeState.valueOf(obj.getString("STATE")),
 					new P2d(obj.getDouble("LOC_X"), obj.getDouble("LOC_Y")),
 					new V2d(obj.getDouble("DIR_X"), obj.getDouble("DIR_Y")),
 					obj.getDouble("SPEED"),

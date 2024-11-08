@@ -5,7 +5,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.ebikes.domain.EbikeEventObserver;
 import sap.ass2.ebikes.domain.RepositoryException;
-import sap.ass2.ebikes.domain.Ebike.EBikeState;
+import sap.ass2.ebikes.domain.Ebike.EbikeState;
 
 public interface EbikesManagerAPI {
     /**
@@ -61,7 +61,7 @@ public interface EbikesManagerAPI {
      * @throws IllegalArgumentException if the ebike does not exist
      */
     void updateBike(String ebikeID, 
-                    Optional<EBikeState> state, 
+                    Optional<EbikeState> state, 
                     Optional<Double> locationX, Optional<Double> locationY, 
                     Optional<Double> directionX, Optional<Double> directionY, 
                     Optional<Double> speed, 

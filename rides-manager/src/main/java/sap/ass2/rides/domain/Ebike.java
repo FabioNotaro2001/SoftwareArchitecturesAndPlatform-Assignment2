@@ -1,4 +1,4 @@
-package sap.ass2.ebikes.domain; // Package declaration for the business logic layer.
+package sap.ass2.rides.domain; // Package declaration for the business logic layer.
 
 public class Ebike  {	
     private String id; // The unique identifier for the electric bike.

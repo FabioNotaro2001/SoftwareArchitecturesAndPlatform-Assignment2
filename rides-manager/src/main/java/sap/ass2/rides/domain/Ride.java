@@ -11,18 +11,18 @@ public class Ride {
     private Date startedDate;          // The date and time when the ride started.
     private Optional<Date> endDate;    // The optional date and time when the ride ended.
     private User user;                  // The user associated with the ride.
-    private EBike ebike;                // The ebike associated with the ride.
+    private Ebike ebike;                // The ebike associated with the ride.
     private String id;                  // The unique identifier for the ride.
 
     /**
-     * Constructor to initialize a ride with an ID, user, and ebike.
+     * Constructor to initialize a ride with an ID, user, and Ebike.
      * The ride's start date is set to the current date and time.
      * The end date is initialized as empty since the ride is ongoing at creation.
      * @param id The unique identifier for the ride.
      * @param user The user participating in the ride.
      * @param ebike The ebike being used for the ride.
      */
-    public Ride(String id, User user, EBike ebike) {
+    public Ride(String id, User user, Ebike ebike) {
         this.id = id;                    
         this.startedDate = new Date();   
         this.endDate = Optional.empty();  
@@ -66,7 +66,7 @@ public class Ride {
      * Returns the ebike associated with the ride.
      * @return The ebike being used for the ride.
      */
-    public EBike getEBike() {
+    public Ebike getEbike() {
         return ebike;                    
     }
 

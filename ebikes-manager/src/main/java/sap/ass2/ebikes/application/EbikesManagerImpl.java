@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import sap.ass2.ebikes.domain.Ebike.EBikeState;
+import sap.ass2.ebikes.domain.Ebike.EbikeState;
 import sap.ass2.ebikes.domain.Ebike;
 import sap.ass2.ebikes.domain.EbikeEventObserver;
 import sap.ass2.ebikes.domain.EbikeRepository;
@@ -98,7 +98,7 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
             throw new IllegalStateException("Unable to remove ebike " + ebikeID + ": currently in use");
         }
 
-        ebike.updateState(EBikeState.DISMISSED);
+        ebike.updateState(EbikeState.DISMISSED);
         this.ebikeRepository.saveEbike(ebike);
 
         this.notifyObserversAboutRemoval(ebike.getId());
@@ -112,7 +112,7 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     }
 
     @Override
-    public void updateBike(String ebikeID, Optional<EBikeState> state, Optional<Double> locationX,
+    public void updateBike(String ebikeID, Optional<EbikeState> state, Optional<Double> locationX,
                             Optional<Double> locationY, Optional<Double> directionX, Optional<Double> directionY,
                             Optional<Double> speed, Optional<Integer> batteryLevel) throws RepositoryException, IllegalArgumentException {
         var ebikeOpt = this.ebikes.stream().filter(ebike -> ebike.getId().equals(ebikeID)).findFirst();

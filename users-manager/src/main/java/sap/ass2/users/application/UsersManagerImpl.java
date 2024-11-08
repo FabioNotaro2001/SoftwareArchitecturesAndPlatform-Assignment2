@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.users.domain.RepositoryException;
