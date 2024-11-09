@@ -78,6 +78,7 @@ public class RidesManagerImpl implements RidesManagerAPI{
     public void stopRide(String rideID, String userID) throws IllegalArgumentException {
         // TODO: thread/verticle.
         // A cosa serve userID? Implementato così questo metodo non lo usa
+        // userId serve come verifica aggiuntova che il client è "qualificato" per rimuovere la ride
         var ride = this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst();
         if(ride.isEmpty()){
             throw new IllegalArgumentException("Ride not found!");
@@ -87,20 +88,17 @@ public class RidesManagerImpl implements RidesManagerAPI{
 
     @Override
     public Optional<JsonObject> getRideByRideID(String rideID) {
-        var ride = this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst();
-        return ride.map(RidesManagerImpl::toJSON);
+        return this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst().map(RidesManagerImpl::toJSON);
     }
 
     @Override
     public Optional<JsonObject> getRideByBikeID(String bikeID) {
-        var ride = this.rides.stream().filter(r -> r.getEbike().getId().equals(bikeID)).findFirst();
-        return ride.map(RidesManagerImpl::toJSON);
+        return this.rides.stream().filter(r -> r.getEbike().getId().equals(bikeID)).findFirst().map(RidesManagerImpl::toJSON);
     }
 
     @Override
     public Optional<JsonObject> getRideByUserID(String userID) {
-        var ride = this.rides.stream().filter(r -> r.getUser().getId().equals(userID)).findFirst();
-        return ride.map(RidesManagerImpl::toJSON);
+        return this.rides.stream().filter(r -> r.getUser().getId().equals(userID)).findFirst().map(RidesManagerImpl::toJSON);
     }
 
     @Override
@@ -109,4 +107,4 @@ public class RidesManagerImpl implements RidesManagerAPI{
     }
 }
 
-// TODO: serve l'unsubscribe???????
+// TODO: serve l'unsubscribe??????? Non necessariamente, ma volendo potremmo far registrare la user gui e a quel punto servirebbe
