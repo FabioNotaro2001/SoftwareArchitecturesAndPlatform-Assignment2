@@ -5,25 +5,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.ebikes.domain.Ebike.EbikeState;
 import sap.ass2.ebikes.domain.Ebike;
 import sap.ass2.ebikes.domain.EbikeEventObserver;
-import sap.ass2.ebikes.domain.EbikeRepository;
+import sap.ass2.ebikes.domain.EbikesRepository;
 import sap.ass2.ebikes.domain.P2d;
 import sap.ass2.ebikes.domain.RepositoryException;
 import sap.ass2.ebikes.domain.V2d;
 
 public class EbikesManagerImpl implements EbikesManagerAPI {
 
-    private final EbikeRepository ebikeRepository;
+    private final EbikesRepository ebikeRepository;
     private final List<Ebike> ebikes;
     private List<EbikeEventObserver> observers;
     private Map<EbikeEventObserver, String> specificEbikeObservers; // The string is the ebike id. TODO : Magari trasformare in mappa da stringa a lista di observer.
 
-    public EbikesManagerImpl(EbikeRepository repository) throws RepositoryException {
+    public EbikesManagerImpl(EbikesRepository repository) throws RepositoryException {
         this.ebikeRepository = repository;
         // FIXME: forse meglio usare strutture che gestiscono la concorrenza?
         this.ebikes = ebikeRepository.getEbikes();
@@ -33,7 +32,7 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
 
     private static JsonObject toJSON(Ebike ebike) {
         return new JsonObject()
-            .put("id", ebike.getId())
+            .put("ebikeId", ebike.getId())
             .put("state", ebike.getState().toString())
             .put("x", ebike.getLocation().x())
             .put("y", ebike.getLocation().y())
@@ -44,37 +43,37 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     }
 
     @Override
-    public JsonArray getAllBikes() {
+    public JsonArray getAllEbikes() {
         return ebikes.stream().map(EbikesManagerImpl::toJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
     }
 
     private void notifyObserversAboutUpdate(Ebike ebike) {
-        this.observers.forEach(o -> o.bikeUpdated(ebike.getId(), ebike.getState(), 
+        this.observers.forEach(o -> o.ebikeUpdated(ebike.getId(), ebike.getState(), 
             ebike.getLocation().x(), ebike.getLocation().y(), 
             ebike.getDirection().x(), ebike.getDirection().y(), ebike.getSpeed(), 
             ebike.getBatteryLevel()));
         this.specificEbikeObservers.entrySet().stream()
             .filter(e -> e.getValue().equals(ebike.getId()))
-            .forEach(e -> e.getKey().bikeUpdated(ebike.getId(), ebike.getState(), 
+            .forEach(e -> e.getKey().ebikeUpdated(ebike.getId(), ebike.getState(), 
                 ebike.getLocation().x(), ebike.getLocation().y(), 
                 ebike.getDirection().x(), ebike.getDirection().y(), ebike.getSpeed(), 
                 ebike.getBatteryLevel()));
     }
     
     private void notifyObserversAboutRemoval(String ebikeID) {
-        this.observers.forEach(o -> o.bikeRemoved(ebikeID));
+        this.observers.forEach(o -> o.ebikeRemoved(ebikeID));
         this.specificEbikeObservers.entrySet().stream()
             .filter(e -> e.getValue().equals(ebikeID))
-            .forEach(e -> e.getKey().bikeRemoved(ebikeID));
+            .forEach(e -> e.getKey().ebikeRemoved(ebikeID));
     }
 
     @Override
-    public JsonArray getAllAvailableBikesIDs() {
+    public JsonArray getAllAvailableEbikesIDs() {
         return ebikes.stream().filter(Ebike::isAvailable).map(Ebike::getId).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
     }
 
     @Override
-    public JsonObject createBike(String ebikeID, double locationX, double locationY) throws RepositoryException, IllegalArgumentException {
+    public JsonObject createEbike(String ebikeID, double locationX, double locationY) throws RepositoryException, IllegalArgumentException {
         if (this.ebikes.stream().anyMatch(ebike -> ebike.getId().equals(ebikeID))) {  //FIXME: forse meglio usare una mappa da id ad ebike?
             throw new IllegalArgumentException("Ebike with given id already exists.");
         }
@@ -87,7 +86,7 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     }
 
     @Override
-    public void removeBike(String ebikeID) throws RepositoryException, IllegalArgumentException {
+    public void removeEbike(String ebikeID) throws RepositoryException, IllegalArgumentException {
         var ebikeOpt = this.ebikes.stream().filter(ebike -> ebike.getId().equals(ebikeID)).findFirst();
         if (ebikeOpt.isEmpty()) { 
             throw new IllegalArgumentException("No ebike with id " + ebikeID);
@@ -107,12 +106,12 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     }
 
     @Override
-    public Optional<JsonObject> getBikeByID(String ebikeID) {
+    public Optional<JsonObject> getEbikeByID(String ebikeID) {
         return this.ebikes.stream().filter(ebike -> ebike.getId().equals(ebikeID)).findFirst().map(EbikesManagerImpl::toJSON);
     }
 
     @Override
-    public void updateBike(String ebikeID, Optional<EbikeState> state, Optional<Double> locationX,
+    public void updateEbike(String ebikeID, Optional<EbikeState> state, Optional<Double> locationX,
                             Optional<Double> locationY, Optional<Double> directionX, Optional<Double> directionY,
                             Optional<Double> speed, Optional<Integer> batteryLevel) throws RepositoryException, IllegalArgumentException {
         var ebikeOpt = this.ebikes.stream().filter(ebike -> ebike.getId().equals(ebikeID)).findFirst();

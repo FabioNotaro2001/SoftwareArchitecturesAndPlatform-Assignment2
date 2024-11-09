@@ -16,7 +16,7 @@ import sap.ass2.users.domain.UserEventObserver;
 public class UsersManagerVerticle extends AbstractVerticle implements UserEventObserver {
     private int port;
     private UsersManagerAPI usersAPI;
-    private static final String USER_MANAGER_EVENTS = "user-manager-events";
+    private static final String USER_MANAGER_EVENTS = "users-manager-events";
 
     public UsersManagerVerticle(int port, UsersManagerAPI usersAPI) {
         this.port = port;
@@ -83,7 +83,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
         String userID = context.pathParam("userId");
         JsonObject response = new JsonObject();
         try {
-            response.put("users", this.usersAPI.getUserByID(userID));
+            response.put("user", this.usersAPI.getUserByID(userID));
             sendReply(context.response(), response);
         } catch (Exception ex) {
             sendServiceError(context.response(), ex);

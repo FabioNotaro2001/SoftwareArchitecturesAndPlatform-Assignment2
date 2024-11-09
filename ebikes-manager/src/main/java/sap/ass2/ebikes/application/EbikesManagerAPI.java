@@ -12,13 +12,13 @@ public interface EbikesManagerAPI {
      * Retrieves all ebikes.
      * @return a list of ebikes
      */
-    JsonArray getAllBikes();
+    JsonArray getAllEbikes();
 
     /**
      * Retrieves all ebike ids.
      * @return a list of ebike ids.
      */
-    JsonArray getAllAvailableBikesIDs();
+    JsonArray getAllAvailableEbikesIDs();
 
     /**
      * Creates a new ebike.
@@ -29,7 +29,7 @@ public interface EbikesManagerAPI {
      * @throws RepositoryException if there's an error while performing the action
      * @throws IllegalArgumentException if the ebike's ID is already in use
      */
-    JsonObject createBike(String ebikeID, double locationX, double locationY) throws RepositoryException, IllegalArgumentException;
+    JsonObject createEbike(String ebikeID, double locationX, double locationY) throws RepositoryException, IllegalArgumentException;
 
     /**
      * Removes an ebike.
@@ -38,14 +38,14 @@ public interface EbikesManagerAPI {
      * @throws IllegalArgumentException if the ebike does not exist
      * @throws IllegalStateException if the ebike is currently in use
      */
-    void removeBike(String ebikeID) throws RepositoryException, IllegalArgumentException, IllegalStateException;
+    void removeEbike(String ebikeID) throws RepositoryException, IllegalArgumentException, IllegalStateException;
 
     /**
      * Retrieves an ebike.
      * @param ebikeID the ebike's ID
      * @return an optional containing the ebike if available, otherwise an empty optional
      */
-    Optional<JsonObject> getBikeByID(String ebikeID);
+    Optional<JsonObject> getEbikeByID(String ebikeID);
 
     /**
      * Updates an ebike.
@@ -60,7 +60,7 @@ public interface EbikesManagerAPI {
      * @throws RepositoryException if there's an error while performing the action
      * @throws IllegalArgumentException if the ebike does not exist
      */
-    void updateBike(String ebikeID, 
+    void updateEbike(String ebikeID, 
                     Optional<EbikeState> state, 
                     Optional<Double> locationX, Optional<Double> locationY, 
                     Optional<Double> directionX, Optional<Double> directionY, 

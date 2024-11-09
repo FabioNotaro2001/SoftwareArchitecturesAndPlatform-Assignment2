@@ -12,16 +12,16 @@ import java.util.Optional;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.ebikes.domain.Ebike;
 import sap.ass2.ebikes.domain.Ebike.EbikeState;
-import sap.ass2.ebikes.domain.EbikeRepository;
+import sap.ass2.ebikes.domain.EbikesRepository;
 import sap.ass2.ebikes.domain.P2d;
 import sap.ass2.ebikes.domain.RepositoryException;
 import sap.ass2.ebikes.domain.V2d;
 
-public class EbikeRepositoryImpl implements EbikeRepository {
+public class EbikesRepositoryImpl implements EbikesRepository {
 
     private String dbaseFolder;            // Base folder for storing database files.
 
-    public EbikeRepositoryImpl() {
+    public EbikesRepositoryImpl() {
         this.dbaseFolder =  "./database";  // Default path for the database folder.
         makeDir(dbaseFolder);  // Create the base folder if not exists.
     }

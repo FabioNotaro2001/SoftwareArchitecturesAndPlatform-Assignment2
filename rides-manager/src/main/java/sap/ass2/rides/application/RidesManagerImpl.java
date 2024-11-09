@@ -30,7 +30,7 @@ public class RidesManagerImpl implements RidesManagerAPI{
 
     private static JsonObject toJSON(Ride ride) {
         return new JsonObject()
-            .put("id", ride.getId())
+            .put("rideId", ride.getId())
             .put("userId", ride.getUser().getId())
             .put("bikeId", ride.getEbike().getId());
     }

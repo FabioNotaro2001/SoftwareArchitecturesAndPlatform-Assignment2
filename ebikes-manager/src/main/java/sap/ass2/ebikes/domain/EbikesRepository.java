@@ -3,7 +3,7 @@ package sap.ass2.ebikes.domain;
 import java.util.List;
 import java.util.Optional;
 
-public interface EbikeRepository {
+public interface EbikesRepository {
     /**
      * Saves an ebike object to the persistence layer.
      * @param eBike The ebike object to be saved.

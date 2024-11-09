@@ -29,7 +29,7 @@ public class UsersManagerImpl implements UsersManagerAPI {
 
     private static JsonObject toJSON(User user) {
         return new JsonObject()
-            .put("id", user.getId())
+            .put("userId", user.getId())
             .put("credit", user.getCredit());
     }
 

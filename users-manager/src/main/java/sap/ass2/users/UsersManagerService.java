@@ -1,7 +1,6 @@
 package sap.ass2.users;
 
 import java.net.URL;
-
 import sap.ass2.users.application.UsersRepositoryImpl;
 import sap.ass2.users.application.UsersManagerAPI;
 import sap.ass2.users.application.UsersManagerImpl;
