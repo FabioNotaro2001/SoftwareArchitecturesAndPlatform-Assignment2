@@ -13,13 +13,13 @@ import java.util.Optional;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.users.domain.RepositoryException;
 import sap.ass2.users.domain.User;
-import sap.ass2.users.domain.UserRepository;
+import sap.ass2.users.domain.UsersRepository;
 
-public class UserRepositoryImpl implements UserRepository {
+public class UsersRepositoryImpl implements UsersRepository {
 
     private String dbaseFolder;            // Base folder for storing database files.
 
-    public UserRepositoryImpl() {
+    public UsersRepositoryImpl() {
         this.dbaseFolder =  "./database";  // Default path for the database folder.
         makeDir(dbaseFolder);  // Create the base folder if not exists.
     }

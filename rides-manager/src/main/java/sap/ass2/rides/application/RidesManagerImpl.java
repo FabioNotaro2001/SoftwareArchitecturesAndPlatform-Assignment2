@@ -77,11 +77,12 @@ public class RidesManagerImpl implements RidesManagerAPI{
     @Override
     public void stopRide(String rideID, String userID) throws IllegalArgumentException {
         // TODO: thread/verticle.
-        // A cosa serve userID? Implementato così questo metodo non lo usa
-        // userId serve come verifica aggiuntova che il client è "qualificato" per rimuovere la ride
         var ride = this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst();
         if(ride.isEmpty()){
             throw new IllegalArgumentException("Ride not found!");
+        }
+        if(!ride.get().getUser().getId().equals(userID)){
+            throw new IllegalArgumentException("The current user cannot stop the specified ride!");
         }
         this.rides.remove(ride.get());
     }

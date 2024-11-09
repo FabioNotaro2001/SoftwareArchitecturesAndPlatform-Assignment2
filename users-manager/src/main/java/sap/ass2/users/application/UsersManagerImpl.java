@@ -10,16 +10,16 @@ import io.vertx.core.json.JsonObject;
 import sap.ass2.users.domain.RepositoryException;
 import sap.ass2.users.domain.User;
 import sap.ass2.users.domain.UserEventObserver;
-import sap.ass2.users.domain.UserRepository;
+import sap.ass2.users.domain.UsersRepository;
 
 public class UsersManagerImpl implements UsersManagerAPI {
 
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
     private final List<User> users;
     private List<UserEventObserver> observers;
     private Map<UserEventObserver, String> specificUserObservers; // The string is the user id. TODO : Magari trasformare in mappa da stringa a lista di observer.
 
-    UsersManagerImpl(UserRepository userRepository) throws RepositoryException {
+    public UsersManagerImpl(UsersRepository userRepository) throws RepositoryException {
         this.userRepository = userRepository;
         // FIXME: forse meglio usare strutture che gestiscono la concorrenza?
         this.observers = new ArrayList<>();
