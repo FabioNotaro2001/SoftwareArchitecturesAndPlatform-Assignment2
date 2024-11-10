@@ -5,7 +5,7 @@ import java.util.Optional;
 import io.vertx.core.Future;
 
 public interface RegistryRemoteAPI {
-    Future<Optional<URL>> lookupUserManager(String name);
-    Future<Optional<URL>> lookupRideManager(String name);
-    Future<Optional<URL>> lookupEbikeManager(String name);
+    Future<Optional<String>> lookupUsersManager(String name);
+    Future<Optional<String>> lookupRidesManager(String name);
+    Future<Optional<String>> lookupEbikesManager(String name);
 }

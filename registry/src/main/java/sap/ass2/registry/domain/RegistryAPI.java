@@ -7,7 +7,7 @@ public interface RegistryAPI {
     void registerUsersManager(String name, URL address);
     void registerEbikesManager(String name, URL address);
     void registerRidesManager(String name, URL address);
-    Optional<URL> lookupUsersManager(String name);
-    Optional<URL> lookupEbikesManager(String name);
-    Optional<URL> lookupRidesManager(String name);
+    Optional<String> lookupUsersManager(String name);
+    Optional<String> lookupEbikesManager(String name);
+    Optional<String> lookupRidesManager(String name);
 }

@@ -19,8 +19,8 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     private EbikesManagerAPI ebikesAPI;
     private static final String EBIKES_MANAGER_EVENTS = "ebikes-manager-events";
     
-    private static final String UPDATE_EVENT = "update";
-    private static final String REMOVE_EVENT = "remove";
+    private static final String UPDATE_EVENT = "ebike-update";
+    private static final String REMOVE_EVENT = "ebike-remove";
     
     public EbikesManagerVerticle(int port, EbikesManagerAPI usersAPI) {
         this.port = port;
@@ -112,7 +112,10 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         String ebikeID = context.pathParam("ebikeId");
         JsonObject response = new JsonObject();
         try {
-            response.put("ebike", this.ebikesAPI.getEbikeByID(ebikeID));
+            var ebikeOpt = this.ebikesAPI.getEbikeByID(ebikeID);
+            if (ebikeOpt.isPresent()) {
+                response.put("ebike", ebikeOpt.get());
+            }
             sendReply(context.response(), response);
         } catch (Exception ex) {
             sendServiceError(context.response(), ex);
@@ -197,7 +200,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
                             int batteryLevel) {
             var eventBus = vertx.eventBus();
             var obj = new JsonObject()
-                .put("eventType", UPDATE_EVENT)
+                .put("event", UPDATE_EVENT)
                 .put("ebikeId", ebikeID)
                 .put("state", state.toString())
                 .put("x", locationX)
@@ -213,7 +216,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     public void ebikeRemoved(String ebikeID) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
-            .put("eventType", REMOVE_EVENT)
+            .put("event", REMOVE_EVENT)
             .put("ebikeId", ebikeID);
         eventBus.publish(EBIKES_MANAGER_EVENTS, obj);
     }

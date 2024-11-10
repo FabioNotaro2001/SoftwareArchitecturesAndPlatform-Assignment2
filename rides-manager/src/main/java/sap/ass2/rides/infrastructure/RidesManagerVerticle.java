@@ -24,8 +24,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private static final String USER_ID_TYPE = "user";
     private static final String EBIKE_ID_TYPE = "ebike";
     
-    private static final String UPDATE_EVENT = "update";
-    private static final String END_EVENT = "end";
+    private static final String UPDATE_EVENT = "ride-update";
+    private static final String END_EVENT = "ride-end";
     
     public RidesManagerVerticle(int port, RidesManagerAPI ridesAPI) {
         this.port = port;
@@ -159,7 +159,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     public void rideStarted(String rideID, String userID, String ebikeID) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
-            .put("eventType", UPDATE_EVENT)
+            .put("event", UPDATE_EVENT)
             .put("rideId", rideID)
             .put("userId", userID)
             .put("ebikeId", ebikeID);
@@ -170,7 +170,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     public void rideEnded(String rideID) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
-            .put("eventType", END_EVENT)
+            .put("event", END_EVENT)
             .put("rideId", rideID);
         eventBus.publish(RIDES_MANAGER_EVENTS, obj);
     }

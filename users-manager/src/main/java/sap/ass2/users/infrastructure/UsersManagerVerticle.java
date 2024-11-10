@@ -183,7 +183,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     public void userUpdated(String userID, int credit) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
-            .put("id", userID)
+            .put("event", "user-update")
+            .put("userId", userID)
             .put("credit", credit);
         eventBus.publish(USER_MANAGER_EVENTS, obj);
     }
