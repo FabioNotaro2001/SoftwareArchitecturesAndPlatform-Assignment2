@@ -18,7 +18,10 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     private int port;
     private EbikesManagerAPI ebikesAPI;
     private static final String EBIKES_MANAGER_EVENTS = "ebikes-manager-events";
-
+    
+    private static final String UPDATE_EVENT = "update";
+    private static final String REMOVE_EVENT = "remove";
+    
     public EbikesManagerVerticle(int port, EbikesManagerAPI usersAPI) {
         this.port = port;
         this.ebikesAPI = usersAPI;
@@ -189,11 +192,12 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     }
 
     @Override
-    public void ebikeUpdated(String ebikeID, EbikeState state, double locationX, double locationY, double directionX,
-        double directionY, double speed, int batteryLevel) {
+    public void ebikeUpdated(String ebikeID, EbikeState state, 
+                            double locationX, double locationY, double directionX, double directionY, double speed, 
+                            int batteryLevel) {
             var eventBus = vertx.eventBus();
             var obj = new JsonObject()
-                .put("eventType", "update")
+                .put("eventType", UPDATE_EVENT)
                 .put("ebikeId", ebikeID)
                 .put("state", state.toString())
                 .put("x", locationX)
@@ -209,7 +213,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     public void ebikeRemoved(String ebikeID) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
-            .put("eventType", "remove")
+            .put("eventType", REMOVE_EVENT)
             .put("ebikeId", ebikeID);
         eventBus.publish(EBIKES_MANAGER_EVENTS, obj);
     }

@@ -83,7 +83,10 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
         String userID = context.pathParam("userId");
         JsonObject response = new JsonObject();
         try {
-            response.put("user", this.usersAPI.getUserByID(userID));
+            var userOpt = this.usersAPI.getUserByID(userID);
+            if (userOpt.isPresent()) {
+                response.put("user", userOpt.get());
+            }
             sendReply(context.response(), response);
         } catch (Exception ex) {
             sendServiceError(context.response(), ex);

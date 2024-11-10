@@ -32,7 +32,7 @@ public class RidesManagerImpl implements RidesManagerAPI{
         return new JsonObject()
             .put("rideId", ride.getId())
             .put("userId", ride.getUser().getId())
-            .put("bikeId", ride.getEbike().getId());
+            .put("ebikeId", ride.getEbike().getId());
     }
 
     @Override
