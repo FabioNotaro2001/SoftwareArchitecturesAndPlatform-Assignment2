@@ -1,6 +1,5 @@
 package sap.ass2.admingui.library;
 
-import java.net.URL;
 import java.util.Optional;
 import io.vertx.core.Future;
 
