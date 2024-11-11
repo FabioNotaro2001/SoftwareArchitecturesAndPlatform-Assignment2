@@ -10,5 +10,5 @@ public interface UsersManagerRemoteAPI {
     Future<JsonObject> createUser(String userID);
     Future<Optional<JsonObject>> getUserByID(String userID);
     Future<Void> rechargeCredit(String userID, int credit);
-    Future<Optional<JsonObject>> subscribeForUserEvents(String userID, UserEventObserver observer);
+    Future<JsonObject> subscribeForUserEvents(String userID, UserEventObserver observer);
 }

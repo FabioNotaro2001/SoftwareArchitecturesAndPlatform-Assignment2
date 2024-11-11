@@ -1,7 +1,6 @@
 package sap.ass2.admingui.library;
 
 import java.net.URL;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;

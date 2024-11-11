@@ -2,7 +2,6 @@ package sap.ass2.admingui.library;
 
 import java.net.URL;
 import java.util.Optional;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -29,7 +28,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 	}
 
     @Override
-    public Future<JsonArray> getAllBikes() {
+    public Future<JsonArray> getAllEbikes() {
         Promise<JsonArray> p = Promise.promise();
 		client
 		.request(HttpMethod.GET, "/api/ebikes")
@@ -112,11 +111,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-                    if (obj.containsKey("ebike")) {
-                        p.complete(Optional.of(obj.getJsonObject("ebike")));
-                    } else {
-                        p.complete(Optional.empty());
-                    }
+					p.complete(Optional.of(obj.getJsonObject("ebike")));
 				});
 			});
             req.putHeader("content-type", "application/json");

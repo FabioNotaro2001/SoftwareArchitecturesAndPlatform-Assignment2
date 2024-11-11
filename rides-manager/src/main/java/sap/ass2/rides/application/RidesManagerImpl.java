@@ -107,5 +107,3 @@ public class RidesManagerImpl implements RidesManagerAPI{
         this.observers.add(observer);
     }
 }
-
-// TODO: serve l'unsubscribe??????? Non necessariamente, ma volendo potremmo far registrare la user gui e a quel punto servirebbe

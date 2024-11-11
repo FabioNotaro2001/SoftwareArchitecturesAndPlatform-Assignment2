@@ -38,7 +38,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         router.route(HttpMethod.DELETE, "/api/ebikes/:ebikeId").handler(this::deleteEbike);
         router.route(HttpMethod.POST, "/api/ebikes/:ebikeId").handler(this::updateEbike);
         router.route("/api/ebikes/events").handler(this::handleEventSubscription);
-        router.route("/api/ebikes/:ebikeId/events/").handler(this::handleEventSubscription);
+        router.route("/api/ebikes/:ebikeId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);
     }

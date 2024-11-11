@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public interface EbikesManagerRemoteAPI {
-    Future<JsonArray> getAllBikes();
+    Future<JsonArray> getAllEbikes();
     Future<JsonObject> createBike(String bikeID, double locationX, double locationY);
     Future<Void> removeBike(String bikeID);
     Future<Optional<JsonObject>> getBikeByID(String bikeID);

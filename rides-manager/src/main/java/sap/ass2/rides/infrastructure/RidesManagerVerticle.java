@@ -1,7 +1,6 @@
 package sap.ass2.rides.infrastructure;
 
 import java.util.Optional;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -38,7 +37,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
         
         router.route(HttpMethod.GET, "/api/rides").handler(this::getAllRides);
         router.route(HttpMethod.POST, "/api/rides").handler(this::beginRide);
-        router.route(HttpMethod.POST, "/api/rides").handler(this::stopRide);
+        router.route(HttpMethod.DELETE, "/api/rides").handler(this::stopRide);
         router.route(HttpMethod.GET, "/api/rides/:rideId").handler(this::getRideByID);
         router.route("/api/rides/events").handler(this::handleEventSubscription);
         
