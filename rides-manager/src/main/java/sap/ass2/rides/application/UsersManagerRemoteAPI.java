@@ -7,6 +7,6 @@ import io.vertx.core.json.JsonObject;
 public interface UsersManagerRemoteAPI {
     Future<Optional<JsonObject>> getUserByID(String userID);
     Future<Void> decreaseCredit(String userID, int amount);
-    Future<JsonObject> subscribeForUserEvents(String userID, UserEventObserver observer);
-    void unsubscribeForUserEvents(String userID, UserEventObserver observer);
+    Future<JsonObject> subscribeToUserEvents(String userID, UserEventObserver observer);
+    void unsubscribeFromUserEvents(String userID, UserEventObserver observer);
 }

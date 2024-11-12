@@ -164,7 +164,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
             this.selectedUser = this.availableUsers.get(userDropdown.getSelectedIndex());
             userCreditLabel.setText("Credit: " + this.selectedUser.credit());
 
-            this.userManager.subscribeForUserEvents(getName(), this);
+            this.userManager.subscribeToUserEvents(getName(), this);
 
             cardLayout.show(mainPanel, "RidePanel"); // Switch to ride panel.
             this.pack(); // Adjust size after login.
@@ -193,7 +193,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
         this.startRideButton.setEnabled(false); // Disable start button.
         this.endRideButton.setEnabled(true); // Enable end button.
 
-        this.ridesManager.subscribeForRideEvents(this.launchedRide.rideId(), this);
+        this.ridesManager.subscribeToRideEvents(this.launchedRide.rideId(), this);
         System.out.println("Ride started.");
     }
 
@@ -220,6 +220,6 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
         this.startRideButton.setEnabled(true);
         this.endRideButton.setEnabled(false);
 
-        this.ridesManager.unsubscribeForRideEvents();
+        this.ridesManager.unsubscribeFromRideEvents();
     }
 }

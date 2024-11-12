@@ -5,5 +5,5 @@ import io.vertx.core.json.JsonArray;
 
 public interface UsersManagerRemoteAPI {
     Future<JsonArray> getAllUsers();
-    Future<JsonArray> subscribeForUsersEvents(UserEventObserver observer);
+    Future<JsonArray> subscribeToUsersEvents(UserEventObserver observer);
 }

@@ -6,6 +6,6 @@ import io.vertx.core.json.JsonObject;
 public interface RidesManagerRemoteAPI {
     Future<JsonObject> beginRide(String userID, String bikeID);
     Future<Void> stopRide(String rideID, String userID);
-    Future<JsonObject> subscribeForRideEvents(String rideId, RideEventObserver observer);
-    void unsubscribeForRideEvents();
+    Future<JsonObject> subscribeToRideEvents(String rideId, RideEventObserver observer);
+    void unsubscribeFromRideEvents();
 }

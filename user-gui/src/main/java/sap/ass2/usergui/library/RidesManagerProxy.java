@@ -82,7 +82,7 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
     }
 
 	@Override
-	public Future<JsonObject> subscribeForRideEvents(String rideId, RideEventObserver observer) {
+	public Future<JsonObject> subscribeToRideEvents(String rideId, RideEventObserver observer) {
 		Promise<JsonObject> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
@@ -125,7 +125,7 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
 	}
 
 	@Override
-	public void unsubscribeForRideEvents() {
+	public void unsubscribeFromRideEvents() {
 		this.webSocket.writeTextMessage("unsubscribe")
 			.onComplete(h -> {
 				this.webSocket.close();

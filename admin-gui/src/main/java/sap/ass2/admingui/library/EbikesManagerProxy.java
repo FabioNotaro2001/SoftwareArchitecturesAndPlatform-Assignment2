@@ -130,7 +130,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     }
 
     @Override
-    public Future<JsonArray> subscribeForEbikeEvents(EbikeEventObserver observer) {
+    public Future<JsonArray> subscribeToEbikeEvents(EbikeEventObserver observer) {
         Promise<JsonArray> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()

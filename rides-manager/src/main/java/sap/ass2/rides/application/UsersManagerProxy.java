@@ -76,7 +76,7 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 	}
 
 	@Override
-	public Future<JsonObject> subscribeForUserEvents(String userID, UserEventObserver observer) {
+	public Future<JsonObject> subscribeToUserEvents(String userID, UserEventObserver observer) {
 		Promise<JsonObject> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
@@ -112,7 +112,7 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 	}
 
 	@Override
-	public void unsubscribeForUserEvents(String userID, UserEventObserver observer) {
+	public void unsubscribeFromUserEvents(String userID, UserEventObserver observer) {
 		this.webSocket.writeTextMessage("unsubscribe")
 			.onComplete(h -> {
 				this.webSocket.close();

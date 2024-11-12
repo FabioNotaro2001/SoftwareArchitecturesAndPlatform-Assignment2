@@ -5,5 +5,5 @@ import io.vertx.core.json.JsonArray;
 
 public interface RidesManagerRemoteAPI {
     Future<JsonArray> getAllRides();
-    Future<JsonArray> subscribeForRideEvents(RideEventObserver observer);
+    Future<JsonArray> subscribeToRideEvents(RideEventObserver observer);
 }

@@ -47,7 +47,7 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
     }
 
     @Override
-    public Future<JsonArray> subscribeForUsersEvents(UserEventObserver observer) {
+    public Future<JsonArray> subscribeToUsersEvents(UserEventObserver observer) {
         Promise<JsonArray> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()

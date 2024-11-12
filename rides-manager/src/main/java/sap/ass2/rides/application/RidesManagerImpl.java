@@ -105,17 +105,17 @@ public class RidesManagerImpl implements RidesManagerAPI{
     }
 
     @Override
-    public void subscribeForRideEvents(RideEventObserver observer) {
+    public void subscribeToRideEvents(RideEventObserver observer) {
         this.observers.add(observer);
     }
 
     @Override
-    public void subscribeForRideEvents(String rideId, RideEventObserver observer) {
+    public void subscribeToRideEvents(String rideId, RideEventObserver observer) {
         this.specificRideObservers.put(observer, rideId);
     }
     
     @Override
-    public void unsubscribeForRideEvents(String rideId, RideEventObserver observer) {
+    public void unsubscribeFromRideEvents(String rideId, RideEventObserver observer) {
         this.specificRideObservers.remove(observer, rideId);
     }
 }

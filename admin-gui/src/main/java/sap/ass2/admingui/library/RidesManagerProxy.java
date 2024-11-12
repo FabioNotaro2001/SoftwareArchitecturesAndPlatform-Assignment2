@@ -48,7 +48,7 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
     }
 
     @Override
-    public Future<JsonArray> subscribeForRideEvents(RideEventObserver observer) {
+    public Future<JsonArray> subscribeToRideEvents(RideEventObserver observer) {
         Promise<JsonArray> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()

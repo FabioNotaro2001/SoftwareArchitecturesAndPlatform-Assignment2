@@ -12,7 +12,7 @@ public interface RidesManagerAPI {
     Optional<JsonObject> getRideByRideID(String rideID);
     Optional<JsonObject> getRideByEbikeID(String ebikeID);
     Optional<JsonObject> getRideByUserID(String userID);
-    void subscribeForRideEvents(RideEventObserver observer);
-    void subscribeForRideEvents(String rideId, RideEventObserver observer);
-    void unsubscribeForRideEvents(String rideId, RideEventObserver observer);
+    void subscribeToRideEvents(RideEventObserver observer);
+    void subscribeToRideEvents(String rideId, RideEventObserver observer);
+    void unsubscribeFromRideEvents(String rideId, RideEventObserver observer);
 }

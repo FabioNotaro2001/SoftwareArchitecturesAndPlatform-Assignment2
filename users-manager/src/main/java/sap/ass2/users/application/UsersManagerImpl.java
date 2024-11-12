@@ -86,17 +86,17 @@ public class UsersManagerImpl implements UsersManagerAPI {
     }
 
     @Override
-    public void subscribeForUserEvents(UserEventObserver observer) {
+    public void subscribeToUserEvents(UserEventObserver observer) {
         this.observers.add(observer);
     }
 
     @Override
-    public void subscribeForUserEvents(String userID, UserEventObserver observer) { //FIXME: Probabilmente non la useremo, perchè non necessaria al verticle.
+    public void subscribeToUserEvents(String userID, UserEventObserver observer) { //FIXME: Probabilmente non la useremo, perchè non necessaria al verticle.
         this.specificUserObservers.put(observer, userID);
     }
 
     @Override
-    public void unsubscribeForUserEvents(String userID, UserEventObserver observer) {
+    public void unsubscribeFromUserEvents(String userID, UserEventObserver observer) {
         this.specificUserObservers.remove(observer, userID);
     }
 }

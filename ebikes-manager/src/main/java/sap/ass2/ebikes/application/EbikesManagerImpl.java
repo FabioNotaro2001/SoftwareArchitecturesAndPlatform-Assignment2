@@ -149,17 +149,17 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     }
 
     @Override
-    public void subscribeForEbikeEvents(EbikeEventObserver observer) {
+    public void subscribeToEbikeEvents(EbikeEventObserver observer) {
         this.observers.add(observer);
     }
 
     @Override
-    public void subscribeForEbikeEvents(String ebikeID, EbikeEventObserver observer) {
+    public void subscribeToEbikeEvents(String ebikeID, EbikeEventObserver observer) {
         this.specificEbikeObservers.put(observer, ebikeID);
     }
 
     @Override
-    public void unsubscribeForEbikeEvents(String ebikeID, EbikeEventObserver observer) {
+    public void unsubscribeFromEbikeEvents(String ebikeID, EbikeEventObserver observer) {
         this.specificEbikeObservers.remove(observer, ebikeID);
     }
 

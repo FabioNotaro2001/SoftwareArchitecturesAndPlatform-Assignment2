@@ -8,6 +8,6 @@ import sap.ass2.rides.domain.Ebike.EbikeState;
 public interface EbikesManagerRemoteAPI {
     Future<Optional<JsonObject>> getBikeByID(String bikeID);
     Future<Void> updateBike(String bikeID, Optional<EbikeState> state, Optional<Double> locationX, Optional<Double> locationY, Optional<Double> directionX, Optional<Double> directionY, Optional<Double> speed, Optional<Integer> batteryLevel);
-    Future<JsonObject> subscribeForEbikeEvents(String bikeID, EbikeEventObserver observer);
-    void unsubscribeForEbikeEvents(String bikeID, EbikeEventObserver observer);
+    Future<JsonObject> subscribeToEbikeEvents(String bikeID, EbikeEventObserver observer);
+    void unsubscribeFromEbikeEvents(String bikeID, EbikeEventObserver observer);
 }

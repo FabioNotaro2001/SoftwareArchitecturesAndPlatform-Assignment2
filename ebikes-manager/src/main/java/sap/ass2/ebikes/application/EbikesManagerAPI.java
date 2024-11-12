@@ -71,19 +71,19 @@ public interface EbikesManagerAPI {
      * Subscribes an observer for all ebike events.
      * @param observer the observer
      */
-    void subscribeForEbikeEvents(EbikeEventObserver observer);
+    void subscribeToEbikeEvents(EbikeEventObserver observer);
 
     /**
      * Subscribes an observer for events regarding a specific ebike.
      * @param userID the ebike's ID
      * @param observer the observer
      */
-    void subscribeForEbikeEvents(String ebikeID, EbikeEventObserver observer);
+    void subscribeToEbikeEvents(String ebikeID, EbikeEventObserver observer);
 
     /**
      * Unsubscribes an observer for events regarding a specific ebike.
      * @param userID the ebike's ID
      * @param observer the observer
      */
-    void unsubscribeForEbikeEvents(String ebikeID, EbikeEventObserver observer);
+    void unsubscribeFromEbikeEvents(String ebikeID, EbikeEventObserver observer);
 }

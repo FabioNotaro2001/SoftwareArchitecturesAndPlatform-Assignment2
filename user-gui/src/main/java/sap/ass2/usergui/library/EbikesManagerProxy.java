@@ -48,7 +48,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     }
 
 	@Override
-	public Future<JsonObject> subscribeForEbikeEvents(String ebikeID, EbikeEventObserver observer) {
+	public Future<JsonObject> subscribeToEbikeEvents(String ebikeID, EbikeEventObserver observer) {
 		Promise<JsonObject> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
@@ -91,7 +91,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 	}
 
 	@Override
-	public void unsubscribeForEbikeEvents(String ebikeID, EbikeEventObserver observer) {
+	public void unsubscribeFromEbikeEvents(String ebikeID, EbikeEventObserver observer) {
         this.webSocket.writeTextMessage("unsubscribe")
 			.onComplete(h -> {
 				this.webSocket.close();
