@@ -2,6 +2,7 @@ package sap.ass2.rides.application;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -19,6 +20,7 @@ public class RidesManagerImpl implements RidesManagerAPI{
     private List<Ride> rides;
     private int nextRideId;
     private List<RideEventObserver> observers;
+    private Map<RideEventObserver, String> specificRideObservers; // The string is the ride id.
 
     public void RidesManagerAPI(UsersManagerRemoteAPI userManager, EbikesManagerRemoteAPI ebikemanager){
         this.userManager = userManager;
@@ -93,7 +95,7 @@ public class RidesManagerImpl implements RidesManagerAPI{
     }
 
     @Override
-    public Optional<JsonObject> getRideByBikeID(String bikeID) {
+    public Optional<JsonObject> getRideByEbikeID(String bikeID) {
         return this.rides.stream().filter(r -> r.getEbike().getId().equals(bikeID)).findFirst().map(RidesManagerImpl::toJSON);
     }
 
@@ -105,5 +107,15 @@ public class RidesManagerImpl implements RidesManagerAPI{
     @Override
     public void subscribeForRideEvents(RideEventObserver observer) {
         this.observers.add(observer);
+    }
+
+    @Override
+    public void subscribeForRideEvents(String rideId, RideEventObserver observer) {
+        this.specificRideObservers.put(observer, rideId);
+    }
+    
+    @Override
+    public void unsubscribeForRideEvents(String rideId, RideEventObserver observer) {
+        this.specificRideObservers.remove(observer, rideId);
     }
 }

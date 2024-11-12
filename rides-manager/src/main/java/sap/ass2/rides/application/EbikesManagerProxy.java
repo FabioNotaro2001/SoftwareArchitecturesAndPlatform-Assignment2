@@ -130,9 +130,11 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 
     @Override
     public void unsubscribeForEbikeEvents(String bikeID, EbikeEventObserver observer) {
-        this.webSocket.writeTextMessage("unsubscribe");
-        this.webSocket.close();
-        this.webSocket = null;
+        this.webSocket.writeTextMessage("unsubscribe")
+			.onComplete(h -> {
+				this.webSocket.close();
+				this.webSocket = null;
+			});
     }
 
 }

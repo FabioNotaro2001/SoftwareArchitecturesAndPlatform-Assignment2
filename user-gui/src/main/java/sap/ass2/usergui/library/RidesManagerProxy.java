@@ -7,12 +7,15 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.WebSocket;
+import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonObject;
 
 public class RidesManagerProxy implements RidesManagerRemoteAPI {
     private HttpClient client;
 	private Vertx vertx;
 	private URL ridesManagerAddress;
+	private WebSocket webSocket;
 	
 	public RidesManagerProxy(URL ridesManagerAddress) {
 		vertx = Vertx.vertx();
@@ -77,4 +80,56 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
 		});
 		return p.future();
     }
+
+	@Override
+	public Future<JsonObject> subscribeForRideEvents(String rideId, RideEventObserver observer) {
+		Promise<JsonObject> p = Promise.promise();
+		
+		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
+				  .setHost(this.ridesManagerAddress.getHost())
+				  .setPort(this.ridesManagerAddress.getPort())
+				  .setURI("/api/rides/" + rideId + "/events")
+				  .setAllowOriginHeader(false);
+		
+		client
+		.webSocket(wsoptions)
+		.onComplete(res -> {
+            if (res.succeeded()) {
+                this.webSocket = res.result();
+                System.out.println("Connected!");
+                this.webSocket.textMessageHandler(data -> {
+                    JsonObject obj = new JsonObject(data);
+                    String evType = obj.getString("event");
+                    if (evType.equals("subscription-started")) {
+                        JsonObject ebike = obj.getJsonObject("ebike");
+                        p.complete(ebike);
+                    } else if (evType.equals("ride-step")) {
+						Double x = obj.getDouble("x");
+                        Double y = obj.getDouble("y");
+						Integer batteryLevel = obj.getInteger("batteryLevel");
+						
+						observer.rideStep(rideId, x, y, batteryLevel);
+                    } else if (evType.equals("ride-end")) {
+                        String reason = obj.getString("reason");
+
+                        observer.rideEnded(rideId, reason);
+                    }
+					// The "ride-start" event can never happen.
+                });
+            } else {
+                p.fail(res.cause());
+            }
+		});
+		
+		return p.future();
+	}
+
+	@Override
+	public void unsubscribeForRideEvents() {
+		this.webSocket.writeTextMessage("unsubscribe")
+			.onComplete(h -> {
+				this.webSocket.close();
+				this.webSocket = null;
+			});
+	}
 }

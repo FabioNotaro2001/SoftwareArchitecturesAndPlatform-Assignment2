@@ -23,7 +23,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private static final String USER_ID_TYPE = "user";
     private static final String EBIKE_ID_TYPE = "ebike";
     
-    private static final String UPDATE_EVENT = "ride-update";
+    private static final String START_EVENT = "ride-start";
+    private static final String STEP_EVENT = "ride-step";
     private static final String END_EVENT = "ride-end";
     
     public RidesManagerVerticle(int port, RidesManagerAPI ridesAPI) {
@@ -40,6 +41,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
         router.route(HttpMethod.DELETE, "/api/rides").handler(this::stopRide);
         router.route(HttpMethod.GET, "/api/rides/:rideId").handler(this::getRideByID);
         router.route("/api/rides/events").handler(this::handleEventSubscription);
+        router.route("/api/rides/:rideId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);
     }
@@ -117,7 +119,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
                     break;
                 }
                 case EBIKE_ID_TYPE: {
-                    ride = this.ridesAPI.getRideByBikeID(id);
+                    ride = this.ridesAPI.getRideByEbikeID(id);
                     break;
                 }
                 default: {
@@ -135,21 +137,43 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     protected void handleEventSubscription(RoutingContext context){
+        Optional<String> rideID = Optional.of(context.pathParam("rideId"));
+
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
         wsFuture.onSuccess(webSocket -> {
             JsonObject reply = new JsonObject();
-            
-            JsonArray rides = this.ridesAPI.getAllRides();
-            reply.put("rides", rides);
-            webSocket.accept();
+            if (rideID.isEmpty()) {
+                JsonArray rides = this.ridesAPI.getAllRides();
+                reply.put("rides", rides);
+                webSocket.accept();
+            } else {
+                Optional<JsonObject> ride = this.ridesAPI.getRideByRideID(rideID.get());
+                if (ride.isPresent()){
+                    reply.put("ride", ride.get());
+                    webSocket.accept();
+                } else{
+                    webSocket.reject();
+                    return;
+                }
+            }
 
             reply.put("event", "subscription-started");
             webSocket.writeTextMessage(reply.encodePrettily());
             var eventBus = vertx.eventBus();
-            eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> {
+            var consumer = eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> {
                 JsonObject ride = (JsonObject) msg.body();
-                webSocket.writeTextMessage(ride.encodePrettily());
+                if(rideID.isEmpty() || rideID.get().equals(ride.getString("rideId"))){
+                    webSocket.writeTextMessage(ride.encodePrettily());
+                }
+            });
+
+            webSocket.textMessageHandler(data -> {
+                JsonObject obj = new JsonObject(data);
+                if(obj.containsKey("unsubscribe")){
+                    consumer.unregister();
+                    webSocket.close();
+                }
             });
         });
     }
@@ -158,7 +182,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     public void rideStarted(String rideID, String userID, String ebikeID) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
-            .put("event", UPDATE_EVENT)
+            .put("event", START_EVENT)
             .put("rideId", rideID)
             .put("userId", userID)
             .put("ebikeId", ebikeID);
@@ -166,11 +190,24 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     @Override
-    public void rideEnded(String rideID) {
+    public void rideStep(String rideID, double x, double y, int batteryLevel) {   // TODO: invocato (oltre agli altri) nel thread/verticle della ride specifica
+        var eventBus = vertx.eventBus();
+        var obj = new JsonObject()
+            .put("event", STEP_EVENT)
+            .put("rideId", rideID)
+            .put("x", x)
+            .put("y", y)
+            .put("batteryLevel", batteryLevel);
+        eventBus.publish(RIDES_MANAGER_EVENTS, obj);
+    }
+
+    @Override
+    public void rideEnded(String rideID, String reason) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
             .put("event", END_EVENT)
-            .put("rideId", rideID);
+            .put("rideId", rideID)
+            .put("reason", reason);
         eventBus.publish(RIDES_MANAGER_EVENTS, obj);
     }
 

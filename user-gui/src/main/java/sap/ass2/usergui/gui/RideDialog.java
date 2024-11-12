@@ -1,38 +1,57 @@
 package sap.ass2.usergui.gui;
 
 import javax.swing.*;
+
+import io.vertx.core.json.JsonObject;
+import sap.ass2.usergui.domain.Ride;
+import sap.ass2.usergui.library.EbikesManagerRemoteAPI;
+import sap.ass2.usergui.library.RidesManagerRemoteAPI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
  * Dialog for starting a ride on an E-Bike.
  */
 public class RideDialog extends JDialog {
-    private JComboBox<String> bikesComboBox; // Dropdown for selecting available bikes.
-    private JButton startButton; // Button to start the ride.
-    private JButton cancelButton; // Button to cancel the dialog.
-    private UserGUI fatherUserGUI; // Reference to the parent UserGUI.
-    private String userRiding; // User ID of the rider.
-    private List<String> availableBikes; // List of available bike IDs.
-    private String bikeSelectedID; // Selected bike ID.
-    private UserService userService; // Service for user operations.
+    private JComboBox<String> bikesComboBox;        // Dropdown for selecting available bikes.
+    private JButton startButton;                    // Button to start the ride.
+    private JButton cancelButton;                   // Button to cancel the dialog.
+    private UserGUI fatherUserGUI;                  // Reference to the parent UserGUI.
+    private EbikesManagerRemoteAPI ebikesManager;   // Service for ebike operations.
+    private RidesManagerRemoteAPI ridesManager;     // Service for ride operations.
+    
+    private String userRiding;                      // User ID of the rider.
+    private List<String> availableBikes;            // List of available bike IDs.
+    private String bikeSelectedID;                  // Selected bike ID.
 
-    public RideDialog(UserGUI fatherUserGUI, String user, UserService userService) throws RemoteException {
+    public RideDialog(UserGUI fatherUserGUI, String user, EbikesManagerRemoteAPI ebikesManager, RidesManagerRemoteAPI ridesManager) {
         super(fatherUserGUI, "Start Riding an EBike", true);
-        this.userService = userService;
-        // Get available bikes and map to bike IDs.
-        this.availableBikes = this.userService.getAvailableBikes().stream().map(b -> b.bikeID()).toList();
-        initializeComponents(); // Initialize UI components.
-        setupLayout(); // Setup layout for the dialog.
-        pack(); // Resize dialog to fit components.
-        addEventHandlers(); // Add action listeners for buttons.
-        setLocationRelativeTo(fatherUserGUI); // Center dialog relative to parent.
+        this.ebikesManager = ebikesManager;
+        this.ridesManager = ridesManager;
+
         this.fatherUserGUI = fatherUserGUI; // Set parent GUI.
-        this.userRiding = user; // Set user ID of the rider.
+        this.userRiding = user;             // Set user ID of the rider.
+        
+        // Get available bikes and map to bike IDs.
+        // this.availableBikes = this.userService.getAvailableBikes().stream().map(b -> b.bikeID()).toList();
+        this.ebikesManager.getAllAvailableEbikesIDs()
+            .onSuccess(ebikeIds -> {
+                this.availableBikes = ebikeIds.stream().map(Object::toString).collect(Collectors.toList());
+            
+                initializeComponents();                 // Initialize UI components.
+                setupLayout();                          // Setup layout for the dialog.
+                addEventHandlers();                     // Add action listeners for buttons.
+                setLocationRelativeTo(fatherUserGUI);   // Center dialog relative to parent.
+                pack();                                 // Resize dialog to fit components.
+            })
+            .onFailure(ex -> {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            });
     }
 
     private void initializeComponents() {
@@ -57,6 +76,10 @@ public class RideDialog extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH); // Add button panel to bottom.
     }
 
+    private static Ride jsonObjToRide(JsonObject obj) {
+        return new Ride(obj.getString("rideId"), obj.getString("userId"), obj.getString("ebikeId"));
+    }
+
     private void addEventHandlers() {
         // Action listener for the start button.
         startButton.addActionListener(new ActionListener() {
@@ -64,13 +87,17 @@ public class RideDialog extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 bikeSelectedID = bikesComboBox.getSelectedItem().toString(); // Get selected bike ID.
                 cancelButton.setEnabled(false); // Disable cancel button.
-                try {
-                    // Start the ride and set launched ride in parent GUI.
-                    fatherUserGUI.setLaunchedRide(userService.beginRide(userRiding, bikeSelectedID));
-                } catch (RemoteException | IllegalArgumentException | IllegalStateException | RepositoryException e1) {
-                    e1.printStackTrace(); // Handle exceptions.
-                }
-                dispose(); // Close the dialog.
+
+                // Starts the ride.
+                ridesManager.beginRide(userRiding, bikeSelectedID)
+                    .onSuccess(rideObj -> {
+                        // Sets the launched ride in the parent GUI.
+                        fatherUserGUI.setLaunchedRide(jsonObjToRide(rideObj));
+                        dispose(); // Close the dialog.
+                    })
+                    .onFailure(ex -> {
+                        JOptionPane.showMessageDialog(fatherUserGUI, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                    });
             }
         });
         

@@ -69,16 +69,24 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
                     if (evType.equals("subscription-started")) {
                         JsonArray ebikes = obj.getJsonArray("ebikes");
                         p.complete(ebikes);
-                    } else if (evType.equals("ride-update")) {
+                    } else if (evType.equals("ride-start")) {
                         String rideID = obj.getString("rideId");
                         String userID = obj.getString("userId");
                         String ebikeID = obj.getString("ebikeId");
                         
                         observer.rideStarted(rideID, userID, ebikeID);
+                    } else if (evType.equals("ride-step")) {
+                        String rideID = obj.getString("rideId");
+                        Double x = obj.getDouble("x");
+                        Double y = obj.getDouble("y");
+                        Integer batteryLevel = obj.getInteger("batteryLevel");
+                        
+                        observer.rideStep(rideID, x, y, batteryLevel);
                     } else if (evType.equals("ride-end")) {
                         String rideID = obj.getString("rideId");
+                        String reason = obj.getString("reason");
                         
-                        observer.rideEnded(rideID);
+                        observer.rideEnded(rideID, reason);
                     }
                 });
             } else {
