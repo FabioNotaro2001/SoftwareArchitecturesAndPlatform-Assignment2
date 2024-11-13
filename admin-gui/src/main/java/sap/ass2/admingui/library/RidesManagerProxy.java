@@ -79,9 +79,12 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
                         String rideID = obj.getString("rideId");
                         Double x = obj.getDouble("x");
                         Double y = obj.getDouble("y");
+                        Double directionX = obj.getDouble("dirX");
+                        Double directionY = obj.getDouble("dirY");
+                        Double speed = obj.getDouble("speed");
                         Integer batteryLevel = obj.getInteger("batteryLevel");
                         
-                        observer.rideStep(rideID, x, y, batteryLevel);
+                        observer.rideStep(rideID, x, y, directionX, directionY, speed, batteryLevel);
                     } else if (evType.equals("ride-end")) {
                         String rideID = obj.getString("rideId");
                         String reason = obj.getString("reason");

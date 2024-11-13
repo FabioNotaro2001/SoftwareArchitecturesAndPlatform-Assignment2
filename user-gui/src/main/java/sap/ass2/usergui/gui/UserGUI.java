@@ -43,7 +43,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     private EbikesManagerRemoteAPI ebikesManager;
     private List<User> availableUsers;
 
-    public UserGUI(UsersManagerProxy usersManager, RidesManagerProxy ridesManager, EbikesManagerProxy ebikesManager) {
+    public UserGUI(UsersManagerRemoteAPI usersManager, RidesManagerRemoteAPI ridesManager, EbikesManagerRemoteAPI ebikesManager) {
         this.userManager = usersManager;
         this.ridesManager = ridesManager;
         this.ebikesManager = ebikesManager;
@@ -206,7 +206,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     }
 
     @Override
-    public void rideStep(String rideID, double x, double y, int batteryLevel) {
+    public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel) {
         System.out.println("Bike movement: [x -> " + x + "], [y ->" + y + "], [battery -> " + batteryLevel + "]");
     }
 

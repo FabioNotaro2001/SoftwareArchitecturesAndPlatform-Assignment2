@@ -190,13 +190,16 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     @Override
-    public void rideStep(String rideID, double x, double y, int batteryLevel) {   // TODO: invocato (oltre agli altri) nel thread/verticle della ride specifica
+    public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel) {   // TODO: invocato (oltre agli altri) nel thread/verticle della ride specifica
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
             .put("event", STEP_EVENT)
             .put("rideId", rideID)
             .put("x", x)
             .put("y", y)
+            .put("dirX", directionX)
+            .put("dirY", directionY)
+            .put("speed", speed)
             .put("batteryLevel", batteryLevel);
         eventBus.publish(RIDES_MANAGER_EVENTS, obj);
     }
