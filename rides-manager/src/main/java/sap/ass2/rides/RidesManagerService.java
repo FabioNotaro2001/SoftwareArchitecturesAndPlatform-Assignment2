@@ -11,9 +11,11 @@ public class RidesManagerService {
     private RidesManagerController ridesController;
     private URL localAddress;
 
+    // TODO: arguments for proxies (registry excluded)
     public RidesManagerService(URL localAddress) {
         this.localAddress = localAddress;
-        this.ridesManager = new RidesManagerImpl();
+
+        this.ridesManager = new RidesManagerImpl(null, null);
     }
 
     public void launch(){

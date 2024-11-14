@@ -13,5 +13,7 @@ public class EbikesManagerLauncher {
         URL localAddress = new URI(SERVICE_ADDRESS).toURL();
         EbikesManagerService service = new EbikesManagerService(localAddress);
         service.launch();
+
+        // TODO: create registry proxy and register, and other proxies
     }
 }

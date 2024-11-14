@@ -12,5 +12,7 @@ public class RidesManagerLauncher {
         URL localAddress = new URI(SERVICE_ADDRESS).toURL();
         RidesManagerService service = new RidesManagerService(localAddress);
         service.launch();
+
+        // TODO: create registry proxy and register
     }
 }

@@ -75,6 +75,6 @@ public class Ride {
      * @return A string representing the ride's ID, user ID, and ebike ID.
      */
     public String toString() {
-        return "{ id: " + this.id + ", user: " + user.getId() + ", bike: " + ebike.getId() + " }"; 
+        return "{ id: " + this.id + ", user: " + user.id() + ", bike: " + ebike.id() + " }"; 
     }
 }

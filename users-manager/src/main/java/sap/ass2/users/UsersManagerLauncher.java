@@ -13,5 +13,7 @@ public class UsersManagerLauncher {
         URL localAddress = new URI(SERVICE_ADDRESS).toURL();
         UsersManagerService service = new UsersManagerService(localAddress);
         service.launch();
+
+        // TODO: create registry proxy and register
     }
 }

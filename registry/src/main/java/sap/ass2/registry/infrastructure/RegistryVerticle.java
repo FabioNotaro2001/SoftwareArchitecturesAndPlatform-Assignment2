@@ -45,11 +45,11 @@ public class RegistryVerticle extends AbstractVerticle {
         response.end(ex.getMessage());
     }
 
-    private static void sendBadRequest(HttpServerResponse response, Exception ex) {
-        response.setStatusCode(400);
-        response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
-    }
+    // private static void sendBadRequest(HttpServerResponse response, Exception ex) {
+    //     response.setStatusCode(400);
+    //     response.putHeader("content-type", "application/json");
+    //     response.end(ex.getMessage());
+    // }
 
     protected void registerUsersManager(RoutingContext context) {
         context.request().handler(buffer -> {

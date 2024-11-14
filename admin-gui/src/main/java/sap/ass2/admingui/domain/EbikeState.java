@@ -1,4 +1,4 @@
-package sap.ass2.admingui.library;
+package sap.ass2.admingui.domain;
 
 public enum EbikeState { 
     AVAILABLE,      // The bike is available for use.

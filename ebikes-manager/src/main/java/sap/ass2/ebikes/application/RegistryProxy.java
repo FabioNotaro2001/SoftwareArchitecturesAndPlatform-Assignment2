@@ -9,14 +9,12 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
-public class RegistryProxy implements RegistryRemoteAPI{
+public class RegistryProxy implements RegistryRemoteAPI {
     private HttpClient client;
 	private Vertx vertx;
-	private URL registryAddress;
 	
 	public RegistryProxy(URL registryAddress) {
 		vertx = Vertx.vertx();
-		this.registryAddress = registryAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(registryAddress.getHost())
             .setDefaultPort(registryAddress.getPort());

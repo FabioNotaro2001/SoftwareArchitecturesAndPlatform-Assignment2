@@ -15,13 +15,10 @@ import javax.swing.*;
 
 import io.vertx.core.json.JsonObject;
 import sap.ass2.usergui.domain.*;
-import sap.ass2.usergui.library.EbikesManagerProxy;
 import sap.ass2.usergui.library.EbikesManagerRemoteAPI;
 import sap.ass2.usergui.library.RideEventObserver;
-import sap.ass2.usergui.library.RidesManagerProxy;
 import sap.ass2.usergui.library.RidesManagerRemoteAPI;
 import sap.ass2.usergui.library.UserEventObserver;
-import sap.ass2.usergui.library.UsersManagerProxy;
 import sap.ass2.usergui.library.UsersManagerRemoteAPI;
 
 

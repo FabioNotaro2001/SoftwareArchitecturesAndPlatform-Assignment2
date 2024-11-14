@@ -12,6 +12,7 @@ import io.vertx.core.http.WebSocket;
 import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import sap.ass2.admingui.domain.EbikeState;
 
 public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     private HttpClient client;
