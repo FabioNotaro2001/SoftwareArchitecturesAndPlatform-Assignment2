@@ -2,8 +2,10 @@ package sap.ass2.rides;
 
 import java.net.URL;
 
+import sap.ass2.rides.application.EbikesManagerRemoteAPI;
 import sap.ass2.rides.application.RidesManagerAPI;
 import sap.ass2.rides.application.RidesManagerImpl;
+import sap.ass2.rides.application.UsersManagerRemoteAPI;
 import sap.ass2.rides.infrastructure.RidesManagerController;
 
 public class RidesManagerService {
@@ -11,11 +13,10 @@ public class RidesManagerService {
     private RidesManagerController ridesController;
     private URL localAddress;
 
-    // TODO: arguments for proxies (registry excluded)
-    public RidesManagerService(URL localAddress) {
+    public RidesManagerService(URL localAddress, UsersManagerRemoteAPI usersManager, EbikesManagerRemoteAPI ebikesManager) {
         this.localAddress = localAddress;
 
-        this.ridesManager = new RidesManagerImpl(null, null);
+        this.ridesManager = new RidesManagerImpl(usersManager, ebikesManager);
     }
 
     public void launch(){

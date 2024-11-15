@@ -9,7 +9,7 @@ public class RegistryLauncher {
     private static final String SERVICE_ADDRESS = "http://localhost:9000";
 
     public static void main(String[] args) throws MalformedURLException, URISyntaxException {
-        URL localAddress = new URI(SERVICE_ADDRESS).toURL();
+        URL localAddress = URI.create(SERVICE_ADDRESS).toURL();
         RegistryService service = new RegistryService(localAddress);
         service.launch();
     }

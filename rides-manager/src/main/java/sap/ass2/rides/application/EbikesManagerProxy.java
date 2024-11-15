@@ -37,7 +37,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-                    p.complete(Optional.of(obj.getJsonObject("ebike")));
+                    p.complete(Optional.ofNullable(obj.getJsonObject("ebike")));
 				});
 			});
 			req.send();

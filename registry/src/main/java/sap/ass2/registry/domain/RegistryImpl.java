@@ -34,16 +34,16 @@ public class RegistryImpl implements RegistryAPI {
 
     @Override
     public Optional<String> lookupUsersManager(String name) {
-        return Optional.of(this.usersManagers.get(name)).map(URL::toString);
+        return Optional.ofNullable(this.usersManagers.get(name)).map(URL::toString);
     }
 
     @Override
     public Optional<String> lookupEbikesManager(String name) {
-        return Optional.of(this.ebikesManagers.get(name)).map(URL::toString);
+        return Optional.ofNullable(this.ebikesManagers.get(name)).map(URL::toString);
     }
 
     @Override
     public Optional<String> lookupRidesManager(String name) {
-        return Optional.of(this.ridesManagers.get(name)).map(URL::toString);
+        return Optional.ofNullable(this.ridesManagers.get(name)).map(URL::toString);
     }
 }

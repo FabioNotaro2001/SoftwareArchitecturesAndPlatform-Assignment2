@@ -32,7 +32,7 @@ public class RegistryProxy implements RegistryRemoteAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(Optional.of(obj.getString("usersManager")));
+					p.complete(Optional.ofNullable(obj.getString("usersManager")));
 				});
 			});
 			req.send();
@@ -52,7 +52,7 @@ public class RegistryProxy implements RegistryRemoteAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(Optional.of(obj.getString("ridesManager")));
+					p.complete(Optional.ofNullable(obj.getString("ridesManager")));
 				});
 			});
 			req.send();
@@ -72,7 +72,7 @@ public class RegistryProxy implements RegistryRemoteAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(Optional.of(obj.getString("ebikesManager")));
+					p.complete(Optional.ofNullable(obj.getString("ebikesManager")));
 				});
 			});
 			req.send();

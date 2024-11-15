@@ -1,6 +1,9 @@
 package sap.ass2.rides.infrastructure;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -26,6 +29,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private static final String START_EVENT = "ride-start";
     private static final String STEP_EVENT = "ride-step";
     private static final String END_EVENT = "ride-end";
+
+    static Logger logger = Logger.getLogger("[Rides Manager Verticle]");	
     
     public RidesManagerVerticle(int port, RidesManagerAPI ridesAPI) {
         this.port = port;
@@ -54,16 +59,18 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     private static void sendBadRequest(HttpServerResponse response, Exception ex) {
         response.setStatusCode(400);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     protected void getAllRides(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getAllRides'");
+
         JsonObject response = new JsonObject();
         try {
             response.put("rides", this.ridesAPI.getAllRides());
@@ -74,6 +81,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     protected void beginRide(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'beginRide'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String userID = data.getString("userId");
@@ -89,6 +98,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     protected void stopRide(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'stopRide'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String rideID = data.getString("rideId");
@@ -104,6 +115,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     protected void getRideByID(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getRideByID'");
+
         String idType = context.pathParam("IdType");
         String id = context.pathParam("id");
         JsonObject response = new JsonObject();
@@ -137,7 +150,9 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     protected void handleEventSubscription(RoutingContext context){
-        Optional<String> rideID = Optional.of(context.pathParam("rideId"));
+        logger.log(Level.INFO, "Received subscription request");
+
+        Optional<String> rideID = Optional.ofNullable(context.pathParam("rideId"));
 
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
@@ -146,14 +161,12 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
             if (rideID.isEmpty()) {
                 JsonArray rides = this.ridesAPI.getAllRides();
                 reply.put("rides", rides);
-                webSocket.accept();
             } else {
                 Optional<JsonObject> ride = this.ridesAPI.getRideByRideID(rideID.get());
                 if (ride.isPresent()){
                     reply.put("ride", ride.get());
-                    webSocket.accept();
                 } else{
-                    webSocket.reject();
+                    webSocket.close();
                     return;
                 }
             }

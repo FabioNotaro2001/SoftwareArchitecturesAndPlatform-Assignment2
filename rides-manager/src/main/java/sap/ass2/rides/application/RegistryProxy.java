@@ -1,6 +1,8 @@
 package sap.ass2.rides.application;
 
 import java.net.URL;
+import java.util.Optional;
+
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -25,7 +27,7 @@ public class RegistryProxy implements RegistryRemoteAPI{
 	public Future<Void> registerRidesManager(String name, URL address) {
 		Promise<Void> p = Promise.promise();
 		client
-		.request(HttpMethod.POST, "/api/registry/users-manager")
+		.request(HttpMethod.POST, "/api/registry/rides-manager")
 		.onSuccess(req -> {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
@@ -35,7 +37,7 @@ public class RegistryProxy implements RegistryRemoteAPI{
 			req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("name", name);
-			body.put("address", address);
+			body.put("address", address.toString());
 			
 			String payload = body.encodePrettily();
 			req.putHeader("content-length", "" + payload.length());
@@ -48,4 +50,44 @@ public class RegistryProxy implements RegistryRemoteAPI{
 		});
 		return p.future();
 	}
+
+	@Override
+    public Future<Optional<String>> lookupUsersManager(String name) {
+        Promise<Optional<String>> p = Promise.promise();
+		client
+		.request(HttpMethod.GET, "/api/registry/users-manager/" + name)
+		.onSuccess(req -> {
+			req.response().onSuccess(response -> {
+				response.body().onSuccess(buf -> {
+					JsonObject obj = buf.toJsonObject();
+					p.complete(Optional.ofNullable(obj.getString("usersManager")));
+				});
+			});
+			req.send();
+		})
+		.onFailure(f -> {
+			p.fail(f.getMessage());
+		});
+		return p.future();
+    }
+
+    @Override
+    public Future<Optional<String>> lookupEbikesManager(String name) {
+        Promise<Optional<String>> p = Promise.promise();
+		client
+		.request(HttpMethod.GET, "/api/registry/ebikes-manager/" + name)
+		.onSuccess(req -> {
+			req.response().onSuccess(response -> {
+				response.body().onSuccess(buf -> {
+					JsonObject obj = buf.toJsonObject();
+					p.complete(Optional.ofNullable(obj.getString("ebikesManager")));
+				});
+			});
+			req.send();
+		})
+		.onFailure(f -> {
+			p.fail(f.getMessage());
+		});
+		return p.future();
+    }
 }

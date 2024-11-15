@@ -1,15 +1,23 @@
-package sap.ass2.admingui;
+package sap.ass2.usergui;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
 import io.vertx.core.Future;
-import sap.ass2.admingui.gui.AdminGUI;
-import sap.ass2.admingui.library.*;
+import sap.ass2.usergui.gui.UserGUI;
+import sap.ass2.usergui.library.EbikesManagerProxy;
+import sap.ass2.usergui.library.EbikesManagerRemoteAPI;
+import sap.ass2.usergui.library.RegistryProxy;
+import sap.ass2.usergui.library.RegistryRemoteAPI;
+import sap.ass2.usergui.library.RidesManagerProxy;
+import sap.ass2.usergui.library.RidesManagerRemoteAPI;
+import sap.ass2.usergui.library.UsersManagerProxy;
+import sap.ass2.usergui.library.UsersManagerRemoteAPI;
 
-public class AdminGuiLauncher {
+public class UserGuiLauncher {
     public static void main(String[] args) throws MalformedURLException {
         RegistryRemoteAPI registry = new RegistryProxy(URI.create("http://localhost:9000").toURL());
         
@@ -21,7 +29,7 @@ public class AdminGuiLauncher {
             .onSuccess(cf -> {
                 try {
                     List<Optional<String>> results = cf.list();
-    
+
                     var usersManagerAddressOpt = results.get(0);
                     if (usersManagerAddressOpt.isEmpty()) {
                         System.err.println("Users manager not found.");
@@ -29,21 +37,21 @@ public class AdminGuiLauncher {
                     }
                     UsersManagerRemoteAPI usersManager = new UsersManagerProxy(URI.create(usersManagerAddressOpt.get()).toURL());
                     
-                    var ebikesManagerAddressOpt = results.get(0);
+                    var ebikesManagerAddressOpt = results.get(1);
                     if (ebikesManagerAddressOpt.isEmpty()) {
                         System.err.println("Ebikes manager not found.");
                         System.exit(1);
                     }
                     EbikesManagerRemoteAPI ebikesManager = new EbikesManagerProxy(URI.create(ebikesManagerAddressOpt.get()).toURL());
-            
-                    var ridesManagerAddressOpt = results.get(0);
+                    
+                    var ridesManagerAddressOpt = results.get(2);
                     if (ridesManagerAddressOpt.isEmpty()) {
-                        System.err.println("Ebikes manager not found.");
+                        System.err.println("Rides manager not found.");
                         System.exit(1);
                     }
-                    RidesManagerRemoteAPI ridesManager = new RidesManagerProxy(URI.create(ebikesManagerAddressOpt.get()).toURL());
+                    RidesManagerRemoteAPI ridesManager = new RidesManagerProxy(URI.create(ridesManagerAddressOpt.get()).toURL());
             
-                    AdminGUI gui = new AdminGUI(ebikesManager, ridesManager, usersManager);
+                    UserGUI gui = new UserGUI(usersManager, ridesManager, ebikesManager);
                     gui.display();
                 } catch (MalformedURLException ex) {
                     ex.printStackTrace();

@@ -32,8 +32,8 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
         this.nextRideId = 0;
         this.observers = new ArrayList<>();
 
-        this.rideExecutor = new RidesExecutionVerticle(this, usersManager, ebikesManager);
-        this.rideExecutor.start();
+        this.rideExecutor = new RidesExecutionVerticle(this, usersManager, ebikesManager); // TODO: magari passarlo dal launcher/controller/service?
+        this.rideExecutor.launch();
     }
 
     private static JsonObject toJSON(Ride ride) {

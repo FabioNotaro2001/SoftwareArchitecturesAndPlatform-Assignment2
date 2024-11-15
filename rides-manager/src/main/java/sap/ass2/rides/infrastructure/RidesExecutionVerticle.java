@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -114,7 +115,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 
             Future.all(ebikeFuture, userFuture)
                 .onSuccess(cf -> {
-                    var stopRequestedOpt = Optional.of(this.stopRideRequested.get(rideID));
+                    var stopRequestedOpt = Optional.ofNullable(this.stopRideRequested.get(rideID));
                     if (stopRequestedOpt.isPresent()) {
                         this.stopRideRequested.remove(rideID);
                         this.rides.remove(rideID);

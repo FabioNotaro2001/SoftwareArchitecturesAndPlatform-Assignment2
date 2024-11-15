@@ -36,7 +36,7 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(Optional.of(obj.getJsonObject("user")));
+					p.complete(Optional.ofNullable(obj.getJsonObject("user")));
 				});
 			});
 			req.send();

@@ -1,0 +1,62 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "RegistryLauncher",
+            "request": "launch",
+            "mainClass": "sap.ass2.registry.RegistryLauncher",
+            "projectName": "registry",
+            "cwd": "${workspaceFolder}/registry/"
+        },
+        {
+            "type": "java",
+            "name": "UsersManagerLauncher",
+            "request": "launch",
+            "mainClass": "sap.ass2.users.UsersManagerLauncher",
+            "projectName": "user-manager",
+            "cwd": "${workspaceFolder}/users-manager/"
+        },
+        {
+            "type": "java",
+            "name": "EbikesManagerLauncher",
+            "request": "launch",
+            "mainClass": "sap.ass2.ebikes.EbikesManagerLauncher",
+            "projectName": "ebike-manager",
+            "cwd": "${workspaceFolder}/ebikes-manager/"
+        },
+        {
+            "type": "java",
+            "name": "RidesManagerLauncher",
+            "request": "launch",
+            "mainClass": "sap.ass2.rides.RidesManagerLauncher",
+            "projectName": "ride-manager",
+            "cwd": "${workspaceFolder}/rides-manager/"
+        },
+        {
+            "type": "java",
+            "name": "AdminGuiLauncher",
+            "request": "launch",
+            "mainClass": "sap.ass2.admingui.AdminGuiLauncher",
+            "projectName": "admin-gui",
+            "cwd": "${workspaceFolder}/admin-gui/"
+        },
+        {
+            "type": "java",
+            "name": "UserGuiLauncher",
+            "request": "launch",
+            "mainClass": "sap.ass2.usergui.UserGuiLauncher",
+            "projectName": "user-gui",
+            "cwd": "${workspaceFolder}/user-gui/"
+        },
+        {
+            "type": "java",
+            "name": "---- Current File ----",
+            "request": "launch",
+            "mainClass": "${file}"
+        }
+    ]
+}

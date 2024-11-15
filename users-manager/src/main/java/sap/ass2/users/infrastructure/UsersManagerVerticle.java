@@ -46,13 +46,13 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     private static void sendBadRequest(HttpServerResponse response, Exception ex) {
         response.setStatusCode(400);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     protected void getAllUsers(RoutingContext context) {
@@ -138,7 +138,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     protected void handleEventSubscription(RoutingContext context){
-        Optional<String> userID = Optional.of(context.pathParam("userId"));
+        Optional<String> userID = Optional.ofNullable(context.pathParam("userId"));
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
         wsFuture.onSuccess(webSocket -> {
@@ -147,14 +147,12 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
             if(userID.isEmpty()){
                 JsonArray users = this.usersAPI.getAllUsers();
                 reply.put("users", users);
-                webSocket.accept();
             } else{
                 Optional<JsonObject> user = this.usersAPI.getUserByID(userID.get());
                 if (user.isPresent()){
                     reply.put("user", user.get());
-                    webSocket.accept();
                 } else{
-                    webSocket.reject();
+                    webSocket.close();
                     return;
                 }
             }

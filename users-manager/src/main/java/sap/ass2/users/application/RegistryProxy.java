@@ -25,7 +25,7 @@ public class RegistryProxy implements RegistryRemoteAPI{
 	public Future<Void> registerUsersManager(String name, URL address) {
 		Promise<Void> p = Promise.promise();
 		client
-		.request(HttpMethod.POST, "/api/registry/rides-manager")
+		.request(HttpMethod.POST, "/api/registry/users-manager")
 		.onSuccess(req -> {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
@@ -35,7 +35,7 @@ public class RegistryProxy implements RegistryRemoteAPI{
 			req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("name", name);
-			body.put("address", address);
+			body.put("address", address.toString());
 			
 			String payload = body.encodePrettily();
 			req.putHeader("content-length", "" + payload.length());

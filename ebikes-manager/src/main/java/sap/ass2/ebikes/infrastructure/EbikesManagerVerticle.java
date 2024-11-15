@@ -1,6 +1,9 @@
 package sap.ass2.ebikes.infrastructure;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -21,6 +24,9 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     
     private static final String UPDATE_EVENT = "ebike-update";
     private static final String REMOVE_EVENT = "ebike-remove";
+
+    static Logger logger = Logger.getLogger("[Ebikes Manager Verticle]");	
+
     
     public EbikesManagerVerticle(int port, EbikesManagerAPI usersAPI) {
         this.port = port;
@@ -51,16 +57,18 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     private static void sendBadRequest(HttpServerResponse response, Exception ex) {
         response.setStatusCode(400);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     protected void getAllEbikes(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getAllEbikes'");
+        
         JsonObject response = new JsonObject();
         try {
             response.put("ebikes", this.ebikesAPI.getAllEbikes());
@@ -69,8 +77,10 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
             sendServiceError(context.response(), ex);
         }
     }
-
+    
     protected void getAllAvailableEbikesIds(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getAllAvailableEbikesIds'");
+
         JsonObject response = new JsonObject();
         try {
             response.put("ebikes", this.ebikesAPI.getAllAvailableEbikesIDs());
@@ -81,6 +91,8 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     }
 
     protected void createEbike(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'createEbike'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String ebikeID = data.getString("ebikeId");
@@ -98,6 +110,8 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     }
 
     protected void deleteEbike(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'deleteEbike'");
+
         JsonObject response = new JsonObject();
         String ebikeID = context.request().getParam("ebikeId");
         try {
@@ -109,6 +123,8 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     }
 
     protected void getEbikeByID(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getEbikeByID'");
+
         String ebikeID = context.pathParam("ebikeId");
         JsonObject response = new JsonObject();
         try {
@@ -123,6 +139,8 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     }
 
     protected void updateEbike(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'updateEbike'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String ebikeID = context.pathParam("ebikeId");
@@ -130,13 +148,13 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
             Optional<Double> x, y, dirX, dirY, speed;
             Optional<Integer> batteryLevel;
             try {
-                state = Optional.of(data.getString("state")).map(EbikeState::valueOf);
-                x = Optional.of(data.getDouble("x"));
-                y = Optional.of(data.getDouble("y"));
-                dirX = Optional.of(data.getDouble("dirX"));
-                dirY = Optional.of(data.getDouble("dirY"));
-                speed = Optional.of(data.getDouble("speed"));
-                batteryLevel = Optional.of(data.getInteger("batteryLevel"));
+                state = Optional.ofNullable(data.getString("state")).map(EbikeState::valueOf);
+                x = Optional.ofNullable(data.getDouble("x"));
+                y = Optional.ofNullable(data.getDouble("y"));
+                dirX = Optional.ofNullable(data.getDouble("dirX"));
+                dirY = Optional.ofNullable(data.getDouble("dirY"));
+                speed = Optional.ofNullable(data.getDouble("speed"));
+                batteryLevel = Optional.ofNullable(data.getInteger("batteryLevel"));
             } catch (Exception ex) {
                 sendBadRequest(context.response(), ex);
                 return;
@@ -153,7 +171,9 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     }
 
     protected void handleEventSubscription(RoutingContext context){
-        Optional<String> ebikeID = Optional.of(context.pathParam("ebikeId"));
+        logger.log(Level.INFO, "Received event subscription request");
+
+        Optional<String> ebikeID = Optional.ofNullable(context.pathParam("ebikeId"));
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
         wsFuture.onSuccess(webSocket -> {
@@ -162,14 +182,12 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
             if(ebikeID.isEmpty()){
                 JsonArray ebikes = this.ebikesAPI.getAllEbikes();
                 reply.put("ebikes", ebikes);
-                webSocket.accept();
             } else{
                 Optional<JsonObject> ebike = this.ebikesAPI.getEbikeByID(ebikeID.get());
                 if (ebike.isPresent()){
                     reply.put("ebike", ebike.get());
-                    webSocket.accept();
                 } else{
-                    webSocket.reject();
+                    webSocket.close();
                     return;
                 }
             }

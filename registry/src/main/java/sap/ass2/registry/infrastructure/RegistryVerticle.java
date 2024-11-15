@@ -1,6 +1,9 @@
 package sap.ass2.registry.infrastructure;
 
 import java.net.URI;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
@@ -15,6 +18,8 @@ public class RegistryVerticle extends AbstractVerticle {
     private int port;
     private RegistryAPI registryAPI;
     
+    static Logger logger = Logger.getLogger("[Registry Verticle]");	
+
     public RegistryVerticle(int port, RegistryAPI registryAPI) {
         this.port = port;
         this.registryAPI = registryAPI;
@@ -42,16 +47,18 @@ public class RegistryVerticle extends AbstractVerticle {
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(ex.getMessage());
+        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     }
 
     // private static void sendBadRequest(HttpServerResponse response, Exception ex) {
     //     response.setStatusCode(400);
     //     response.putHeader("content-type", "application/json");
-    //     response.end(ex.getMessage());
+    //     response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
     // }
 
     protected void registerUsersManager(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'registerUsersManager'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String name = data.getString("name");
@@ -59,7 +66,7 @@ public class RegistryVerticle extends AbstractVerticle {
 
             JsonObject response = new JsonObject();
             try {
-                var url = new URI(address).toURL();
+                var url = URI.create(address).toURL();
                 this.registryAPI.registerUsersManager(name, url);
                 sendReply(context.response(), response);
             } catch (Exception ex) {
@@ -69,6 +76,8 @@ public class RegistryVerticle extends AbstractVerticle {
     }
 
     protected void registerEbikesManager(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'registerEbikesManager'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String name = data.getString("name");
@@ -76,7 +85,7 @@ public class RegistryVerticle extends AbstractVerticle {
 
             JsonObject response = new JsonObject();
             try {
-                var url = new URI(address).toURL();
+                var url = URI.create(address).toURL();
                 this.registryAPI.registerEbikesManager(name, url);
                 sendReply(context.response(), response);
             } catch (Exception ex) {
@@ -86,6 +95,8 @@ public class RegistryVerticle extends AbstractVerticle {
     }
 
     protected void registerRidesManager(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'registerRidesManager'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String name = data.getString("name");
@@ -93,7 +104,7 @@ public class RegistryVerticle extends AbstractVerticle {
 
             JsonObject response = new JsonObject();
             try {
-                var url = new URI(address).toURL();
+                var url = URI.create(address).toURL();
                 this.registryAPI.registerRidesManager(name, url);
                 sendReply(context.response(), response);
             } catch (Exception ex) {
@@ -103,6 +114,8 @@ public class RegistryVerticle extends AbstractVerticle {
     }
 
     protected void lookupUsersManager(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'lookupUsersManager'");
+
         JsonObject response = new JsonObject();
         String name = context.pathParam("usersManagerName");
         try {
@@ -117,6 +130,8 @@ public class RegistryVerticle extends AbstractVerticle {
     }
 
     protected void lookupEbikesManager(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'lookupEbikesManager'");
+
         JsonObject response = new JsonObject();
         String name = context.pathParam("ebikesManagerName");
         try {
@@ -131,6 +146,8 @@ public class RegistryVerticle extends AbstractVerticle {
     }
 
     protected void lookupRidesManager(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'lookupRidesManager'");
+
         JsonObject response = new JsonObject();
         String name = context.pathParam("ridesManagerName");
         try {
