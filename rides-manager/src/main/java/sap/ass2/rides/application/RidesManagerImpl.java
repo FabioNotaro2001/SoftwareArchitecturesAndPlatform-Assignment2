@@ -1,9 +1,11 @@
 package sap.ass2.rides.application;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import io.vertx.core.json.JsonArray;
@@ -31,6 +33,7 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
         this.rides = new ArrayList<>();
         this.nextRideId = 0;
         this.observers = new ArrayList<>();
+        this.specificRideObservers = new HashMap<>();
 
         this.rideExecutor = new RidesExecutionVerticle(this, usersManager, ebikesManager); // TODO: magari passarlo dal launcher/controller/service?
         this.rideExecutor.launch();
@@ -49,11 +52,11 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     }
 
     private static User userFromJSON(JsonObject obj){
-        return new User(obj.getString("id"), obj.getInteger("credit"));
+        return new User(obj.getString("userId"), obj.getInteger("credit"));
     }
 
-    private static Ebike eBikeFromJSON(JsonObject obj){
-        String id = obj.getString("id");
+    private static Ebike ebikeFromJSON(JsonObject obj){
+        String id = obj.getString("ebikeId");
         EbikeState state = EbikeState.valueOf(obj.getString("state"));
         double x = obj.getDouble("x");
         double y = obj.getDouble("y");
@@ -67,24 +70,27 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     @Override
     public JsonObject beginRide(String userID, String ebikeID) throws IllegalArgumentException {
         if (rides.stream().anyMatch(r -> r.getEbike().id().equals(ebikeID))) {
-            throw new IllegalArgumentException("Ebike " + ebikeID + "already in use!");
+            throw new IllegalArgumentException("Ebike " + ebikeID + " already in use!");
         }
-        Optional<JsonObject> user = this.usersManager.getUserByID(userID).result();
-        if(user.isEmpty()){
-            throw new IllegalArgumentException("User " + userID + "doesn't exist!");
+        try {
+            Optional<JsonObject> user = this.usersManager.getUserByID(userID).toCompletionStage().toCompletableFuture().get();
+            if(user.isEmpty()){
+                throw new IllegalArgumentException("User " + userID + " doesn't exist!");
+            }
+            Optional<JsonObject> bike = this.ebikesManager.getBikeByID(ebikeID).toCompletionStage().toCompletableFuture().get();
+            if(bike.isEmpty()){
+                throw new IllegalArgumentException("Ebike " + ebikeID + " doesn't exist!");
+            }
+            
+            Ride newRide = new Ride(String.valueOf(this.nextRideId), userFromJSON(user.get()), ebikeFromJSON(bike.get()));
+            this.rides.add(newRide);
+            this.nextRideId++;
+            
+            this.rideExecutor.launchRide(newRide.getId(), newRide.getUser().id(), newRide.getEbike().id());
+            return toJSON(newRide);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        Optional<JsonObject> bike = this.ebikesManager.getBikeByID(ebikeID).result();
-        if(bike.isEmpty()){
-            throw new IllegalArgumentException("Ebike " + ebikeID + "doesn't exist!");
-        }
-        
-        
-        Ride newRide = new Ride(String.valueOf(this.nextRideId), userFromJSON(user.get()), eBikeFromJSON(bike.get()));
-        this.rides.add(newRide);
-        this.nextRideId++;
-
-        this.rideExecutor.launchRide(newRide.getId(), newRide.getUser().id(), newRide.getEbike().id());
-        return toJSON(newRide);
     }
 
     @Override

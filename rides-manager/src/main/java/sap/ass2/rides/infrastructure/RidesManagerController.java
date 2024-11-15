@@ -12,8 +12,9 @@ public class RidesManagerController {
     }
     
     public void init(RidesManagerAPI ridesAPI){
-        this.service = new RidesManagerVerticle(this.port, ridesAPI);
         Vertx v = Vertx.vertx();
-        v.deployVerticle(service);
+        this.service = new RidesManagerVerticle(this.port, ridesAPI);
+        v.deployVerticle(this.service);
+        ridesAPI.subscribeToRideEvents(this.service);
     }
 }

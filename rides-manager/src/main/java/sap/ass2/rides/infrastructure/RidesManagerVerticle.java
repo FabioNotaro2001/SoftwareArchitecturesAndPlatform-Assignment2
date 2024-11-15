@@ -45,7 +45,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
         router.route(HttpMethod.POST, "/api/rides").handler(this::beginRide);
         router.route(HttpMethod.DELETE, "/api/rides").handler(this::stopRide);
         router.route(HttpMethod.GET, "/api/rides/:rideId").handler(this::getRideByID);
-        router.route("/api/rides/events").handler(this::handleEventSubscription);
+        router.route("/api/rides-events").handler(this::handleEventSubscription);
         router.route("/api/rides/:rideId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);
@@ -59,14 +59,18 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
-    }
+
+        JsonObject err = new JsonObject();
+        err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+        response.end(err.toString());    }
 
     private static void sendBadRequest(HttpServerResponse response, Exception ex) {
         response.setStatusCode(400);
         response.putHeader("content-type", "application/json");
-        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
-    }
+
+        JsonObject err = new JsonObject();
+        err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+        response.end(err.toString());    }
 
     protected void getAllRides(RoutingContext context) {
         logger.log(Level.INFO, "Received 'getAllRides'");
@@ -174,9 +178,11 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
             reply.put("event", "subscription-started");
             webSocket.writeTextMessage(reply.encodePrettily());
             var eventBus = vertx.eventBus();
-            var consumer = eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> {
+            var consumer = eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> {                
                 JsonObject ride = (JsonObject) msg.body();
                 if(rideID.isEmpty() || rideID.get().equals(ride.getString("rideId"))){
+                    logger.log(Level.INFO, "Sending event");
+                    
                     webSocket.writeTextMessage(ride.encodePrettily());
                 }
             });

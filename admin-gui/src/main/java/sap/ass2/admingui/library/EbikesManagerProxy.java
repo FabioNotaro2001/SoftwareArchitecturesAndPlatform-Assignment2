@@ -1,7 +1,6 @@
 package sap.ass2.admingui.library;
 
 import java.net.URL;
-import java.util.Optional;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -20,7 +19,12 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 	private URL ebikesManagerAddress;
 	
 	public EbikesManagerProxy(URL ebikesManagerAddress) {
-		vertx = Vertx.vertx();
+		if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
+		
 		this.ebikesManagerAddress = ebikesManagerAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(ebikesManagerAddress.getHost())
@@ -49,7 +53,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     }
 
     @Override
-    public Future<JsonObject> createBike(String ebikeID, double locationX, double locationY) {
+    public Future<JsonObject> createEbike(String ebikeID, double locationX, double locationY) {
         Promise<JsonObject> p = Promise.promise();
 		client
 		.request(HttpMethod.POST, "/api/ebikes")
@@ -78,7 +82,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     }
 
     @Override
-    public Future<Void> removeBike(String ebikeID) {
+    public Future<Void> removeEbike(String ebikeID) {
         Promise<Void> p = Promise.promise();
 		client
 		.request(HttpMethod.DELETE, "/api/ebikes/" + ebikeID)
@@ -104,40 +108,13 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     }
 
     @Override
-    public Future<Optional<JsonObject>> getBikeByID(String ebikeID) {
-        Promise<Optional<JsonObject>> p = Promise.promise();
-		client
-		.request(HttpMethod.GET, "/api/ebikes/" + ebikeID)
-		.onSuccess(req -> {
-			req.response().onSuccess(response -> {
-				response.body().onSuccess(buf -> {
-					JsonObject obj = buf.toJsonObject();
-					p.complete(Optional.ofNullable(obj.getJsonObject("ebike")));
-				});
-			});
-            req.putHeader("content-type", "application/json");
-			JsonObject body = new JsonObject();
-			body.put("ebikeId", ebikeID);
-
-			String payload = body.encodePrettily();
-		    req.putHeader("content-length", "" + payload.length());
-			req.write(payload);
-			req.send();
-		})
-		.onFailure(f -> {
-			p.fail(f.getMessage());
-		});
-		return p.future();
-    }
-
-    @Override
     public Future<JsonArray> subscribeToEbikeEvents(EbikeEventObserver observer) {
         Promise<JsonArray> p = Promise.promise();
 		
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
 				  .setHost(this.ebikesManagerAddress.getHost())
 				  .setPort(this.ebikesManagerAddress.getPort())
-				  .setURI("/api/ebikes/events")
+				  .setURI("/api/ebikes-events")
 				  .setAllowOriginHeader(false);
 		
 		client

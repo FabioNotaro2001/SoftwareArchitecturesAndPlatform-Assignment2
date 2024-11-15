@@ -12,7 +12,7 @@ import sap.ass2.users.domain.User;
 import sap.ass2.users.domain.UserEventObserver;
 import sap.ass2.users.domain.UsersRepository;
 
-public class UsersManagerImpl implements UsersManagerAPI {
+public class UsersManagerImpl implements UsersManagerAPI, UserEventObserver {
 
     private final UsersRepository userRepository;
     private final List<User> users;
@@ -98,5 +98,11 @@ public class UsersManagerImpl implements UsersManagerAPI {
     @Override
     public void unsubscribeFromUserEvents(String userID, UserEventObserver observer) {
         this.specificUserObservers.remove(observer, userID);
+    }
+
+    @Override
+    public void userUpdated(String userID, int credit) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'userUpdated'");
     }
 }

@@ -18,7 +18,12 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
 	private WebSocket webSocket;
 	
 	public RidesManagerProxy(URL ridesManagerAddress) {
-		vertx = Vertx.vertx();
+		if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
+		
 		this.ridesManagerAddress = ridesManagerAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(ridesManagerAddress.getHost())

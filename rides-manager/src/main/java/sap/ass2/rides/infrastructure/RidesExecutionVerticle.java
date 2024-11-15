@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
@@ -33,6 +34,8 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 
     private MessageConsumer<Object> loopConsumer;
 
+    static Logger logger = Logger.getLogger("[Rides Executor Verticle]");	
+
     public RidesExecutionVerticle(RideEventObserver observer, UsersManagerRemoteAPI usersManager, EbikesManagerRemoteAPI ebikesManager) {
         this.observer = observer;
         this.usersManager = usersManager;
@@ -46,8 +49,21 @@ public class RidesExecutionVerticle extends AbstractVerticle {
     }
 
     public void launch() {
-		Vertx.vertx().deployVerticle(this);
+        Vertx vertx;
+        if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
+
+		vertx.deployVerticle(this);
 	}
+
+    // FIXME: loop non va avanti più di un ciclo e non cambia lo stato della bici ad in uso (e forse non lo ritorna a available quando la ride termina)
+
+    // FIXME: evento di terminazione ride non viene lanciato o qualcosa del genere (il bottone della gui utente non si disattiva)
+
+    // FIXME: vertxxxxxxxxxxxxxxxxxxxxxxx di troppo
 
     public void start() {
         // Consumer for events called from outside, specifically for stopping rides.
@@ -67,9 +83,12 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                     eventBus.publish(RIDES_STEP, null);
                 } else {
                     this.loopConsumer.unregister();         // The loop stops when there are no active rides.
+
+                    logger.log(Level.INFO, "Loop paused...");
                 }
             });
         });
+        this.loopConsumer.unregister();
     }
 
     private static User jsonObjToUser(JsonObject obj) {
@@ -89,6 +108,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
         if (this.loopConsumer.isRegistered()) {
             return;
         }
+        logger.log(Level.INFO, "Resuming loop...");
         this.loopConsumer.resume();
         this.vertx.eventBus().publish(RIDES_STEP, null);
     }
@@ -122,12 +142,14 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                         this.observer.rideEnded(rideID, stopRequestedOpt.get().reason);
                         
                         consumer.unregister();
+                        
+                        logger.log(Level.INFO, "Ride " + rideID + " stopped");
                         return;
                     }
 
-                    List<JsonObject> results = cf.list();
-                    Ebike ebike = jsonObjToEbike(results.get(0));
-                    User user = jsonObjToUser(results.get(1));
+                    List<Optional<JsonObject>> results = cf.list();
+                    Ebike ebike = jsonObjToEbike(results.get(0).get());
+                    User user = jsonObjToUser(results.get(1).get());
 
                     TimeVariables timeVar = this.timeVars.get(rideID);
 
@@ -194,6 +216,8 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                             Optional.of(1.0), Optional.of(newBatteryLevel));
 
                         this.timeVars.put(rideID, timeVar);
+
+                        logger.log(Level.INFO, "Ride " + rideID + " event");
                     } else {
                         this.ebikesManager.updateBike(ebikeID, Optional.of(ebike.batteryLevel() > 0 ? EbikeState.AVAILABLE : EbikeState.MAINTENANCE),
                             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
@@ -201,6 +225,8 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                         this.rides.remove(rideID);
                         this.observer.rideEnded(rideID, (ebike.batteryLevel() > 0 ? RideStopReason.USER_RAN_OUT_OF_CREDIT : RideStopReason.EBIKE_RAN_OUT_OF_BATTERY).reason);
                         consumer.unregister();
+
+                        logger.log(Level.INFO, "Ride " + rideID + " ended");
                     }
                 })
                 .onFailure(ex -> {
@@ -210,7 +236,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
         });
 
         this.rides.put(rideID, consumer);
-        this.beginLoopOfEventsIfNecessary();;
+        this.beginLoopOfEventsIfNecessary();
     }
 
     public void stopRide(String rideID) {

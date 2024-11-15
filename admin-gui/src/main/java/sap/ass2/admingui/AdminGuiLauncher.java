@@ -29,19 +29,19 @@ public class AdminGuiLauncher {
                     }
                     UsersManagerRemoteAPI usersManager = new UsersManagerProxy(URI.create(usersManagerAddressOpt.get()).toURL());
                     
-                    var ebikesManagerAddressOpt = results.get(0);
+                    var ebikesManagerAddressOpt = results.get(1);
                     if (ebikesManagerAddressOpt.isEmpty()) {
                         System.err.println("Ebikes manager not found.");
                         System.exit(1);
                     }
                     EbikesManagerRemoteAPI ebikesManager = new EbikesManagerProxy(URI.create(ebikesManagerAddressOpt.get()).toURL());
             
-                    var ridesManagerAddressOpt = results.get(0);
+                    var ridesManagerAddressOpt = results.get(2);
                     if (ridesManagerAddressOpt.isEmpty()) {
-                        System.err.println("Ebikes manager not found.");
+                        System.err.println("Rides manager not found.");
                         System.exit(1);
                     }
-                    RidesManagerRemoteAPI ridesManager = new RidesManagerProxy(URI.create(ebikesManagerAddressOpt.get()).toURL());
+                    RidesManagerRemoteAPI ridesManager = new RidesManagerProxy(URI.create(ridesManagerAddressOpt.get()).toURL());
             
                     AdminGUI gui = new AdminGUI(ebikesManager, ridesManager, usersManager);
                     gui.display();

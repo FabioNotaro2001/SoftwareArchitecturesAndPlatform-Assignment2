@@ -19,7 +19,12 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 	private WebSocket webSocket;
 	
 	public UsersManagerProxy(URL usersManagerAddress) {
-		vertx = Vertx.vertx();
+		if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
+		
 		this.usersManagerAddress = usersManagerAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(usersManagerAddress.getHost())

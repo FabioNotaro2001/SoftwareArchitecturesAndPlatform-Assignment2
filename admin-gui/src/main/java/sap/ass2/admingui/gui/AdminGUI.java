@@ -43,8 +43,8 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 	private RidesManagerRemoteAPI ridesManager;
 	private UsersManagerRemoteAPI usersManager;
 
-    public AdminGUI(EbikesManagerRemoteAPI ebikeManager, RidesManagerRemoteAPI ridesManager, UsersManagerRemoteAPI usersManager) {
-		this.ebikeManager = ebikeManager;
+    public AdminGUI(EbikesManagerRemoteAPI ebikesManager, RidesManagerRemoteAPI ridesManager, UsersManagerRemoteAPI usersManager) {
+		this.ebikeManager = ebikesManager;
 		this.ridesManager = ridesManager;
 		this.usersManager = usersManager;
 
@@ -69,17 +69,17 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
     }
     
     protected void setupModel() {
-        this.ebikeManager.getAllEbikes().onSuccess( ebikesArray -> {
+        this.ebikeManager.subscribeToEbikeEvents(this).onSuccess( ebikesArray -> {
 			this.bikes.putAll(ebikesArray.stream().map(e -> jsonObjToEbike((JsonObject)e)).collect(Collectors.toMap(Ebike::id, ebike -> ebike)));
 			this.bikesModel.addAll(bikes.values().stream().map(Ebike::toString).toList());
 		}); // Add all ebikes to the model.
 
-        this.ridesManager.getAllRides().onSuccess( ridesArray -> {
+        this.ridesManager.subscribeToRideEvents(this).onSuccess( ridesArray -> {
 			this.rides.putAll(ridesArray.stream().map(r -> jsonObjToRide((JsonObject)r)).collect(Collectors.toMap(Ride::rideId, ride -> ride)));
 			this.ridesModel.addAll(rides.values().stream().map(Ride::toString).toList());
 		}); // Add all rides to the model.
 
-		this.usersManager.getAllUsers().onSuccess( usersArray -> {
+		this.usersManager.subscribeToUsersEvents(this).onSuccess( usersArray -> {
 			this.users.putAll(usersArray.stream().map(u -> jsonObjToUser((JsonObject)u)).collect(Collectors.toMap(User::id, user -> user))); 
 			this.usersModel.addAll(users.values().stream().map(User::toString).toList());
 		}); // Add all users to the model.
@@ -284,7 +284,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 
 	@Override
 	public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel){
-		var ride = rides.get(rideID);
+		var ride = rides.get(rideID); 		// FIXME: ride contiene campi null (scoprire da dove vengono)
 		var bike = bikes.get(ride.ebikeId());
 		var newBike = new Ebike(bike.id(), bike.state(), x, y, directionX, directionY, speed, batteryLevel);
 		addOrReplaceEBike(newBike); // Update bike list model.

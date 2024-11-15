@@ -19,7 +19,12 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
 	private URL ridesManagerAddress;
 	
 	public RidesManagerProxy(URL ridesManagerAddress) {
-		vertx = Vertx.vertx();
+        if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
+        
 		this.ridesManagerAddress = ridesManagerAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(ridesManagerAddress.getHost())
@@ -54,7 +59,7 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
 				  .setHost(this.ridesManagerAddress.getHost())
 				  .setPort(this.ridesManagerAddress.getPort())
-				  .setURI("/api/rides/events")
+				  .setURI("/api/rides-events")
 				  .setAllowOriginHeader(false);
 		
 		client
@@ -67,7 +72,7 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
                     JsonObject obj = new JsonObject(data);
                     String evType = obj.getString("event");
                     if (evType.equals("subscription-started")) {
-                        JsonArray ebikes = obj.getJsonArray("ebikes");
+                        JsonArray ebikes = obj.getJsonArray("rides");
                         p.complete(ebikes);
                     } else if (evType.equals("ride-start")) {
                         String rideID = obj.getString("rideId");

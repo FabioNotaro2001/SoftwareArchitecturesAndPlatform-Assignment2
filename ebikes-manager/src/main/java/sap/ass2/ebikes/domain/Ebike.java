@@ -24,8 +24,9 @@ public class Ebike  {
         this.loc = new P2d(0,0); 
         direction = new V2d(1,0); 
         speed = 0; 
+        batteryLevel = 100;
     }
-
+    
     // Constructor for creating an EBike with a unique ID and specified position, initialized to available state.
     public Ebike(String id, P2d pos) {
         this.id = id;
@@ -33,6 +34,7 @@ public class Ebike  {
         this.loc = pos; 
         direction = new V2d(1,0); 
         speed = 0; 
+        batteryLevel = 100;
     }
 
     // Constructor for creating an EBike with full specifications including ID, state, location, direction, speed, and battery level.

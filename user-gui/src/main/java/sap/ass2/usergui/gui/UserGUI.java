@@ -143,6 +143,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
                             var newUser = jsonObjToUser(user);
                             this.availableUsers.add(newUser);
                             userDropdown.addItem(newUser.id());     // Add the new user to the dropdown.
+                            registerDialog.dispose();
                         })
                         .onFailure(ex -> {
                             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -161,7 +162,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
             this.selectedUser = this.availableUsers.get(userDropdown.getSelectedIndex());
             userCreditLabel.setText("Credit: " + this.selectedUser.credit());
 
-            this.userManager.subscribeToUserEvents(getName(), this);
+            this.userManager.subscribeToUserEvents(this.selectedUser.id(), this);
 
             cardLayout.show(mainPanel, "RidePanel"); // Switch to ride panel.
             this.pack(); // Adjust size after login.

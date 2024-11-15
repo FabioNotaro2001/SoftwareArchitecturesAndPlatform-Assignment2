@@ -1,6 +1,9 @@
 package sap.ass2.users.infrastructure;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -16,7 +19,10 @@ import sap.ass2.users.domain.UserEventObserver;
 public class UsersManagerVerticle extends AbstractVerticle implements UserEventObserver {
     private int port;
     private UsersManagerAPI usersAPI;
+
     private static final String USER_MANAGER_EVENTS = "users-manager-events";
+
+    static Logger logger = Logger.getLogger("[Users Manager Verticle]");
 
     public UsersManagerVerticle(int port, UsersManagerAPI usersAPI) {
         this.port = port;
@@ -32,7 +38,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
         router.route(HttpMethod.GET, "/api/users/:userId").handler(this::getUserByID);
         router.route(HttpMethod.POST, "/api/users/:userId/recharge-credit").handler(this::rechargeCredit);
         router.route(HttpMethod.POST, "/api/users/:userId/decrease-credit").handler(this::decreaseCredit);
-        router.route("/api/users/events").handler(this::handleEventSubscription);
+        router.route("/api/users-events").handler(this::handleEventSubscription);
         router.route("/api/users/:userId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);
@@ -46,16 +52,24 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+
+        JsonObject err = new JsonObject();
+        err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+        response.end(err.toString());
     }
 
     private static void sendBadRequest(HttpServerResponse response, Exception ex) {
         response.setStatusCode(400);
         response.putHeader("content-type", "application/json");
-        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+
+        JsonObject err = new JsonObject();
+        err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+        response.end(err.toString());
     }
 
     protected void getAllUsers(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getAllUsers'");
+
         JsonObject response = new JsonObject();
         try {
             response.put("users", this.usersAPI.getAllUsers());
@@ -66,6 +80,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     protected void createUser(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'createUser'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String userID = data.getString("userId");
@@ -80,6 +96,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     protected void getUserByID(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'getUserByID'");
+
         String userID = context.pathParam("userId");
         JsonObject response = new JsonObject();
         try {
@@ -94,6 +112,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     protected void rechargeCredit(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'rechargeCredit'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String userID = context.pathParam("userId");
@@ -116,6 +136,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     protected void decreaseCredit(RoutingContext context) {
+        logger.log(Level.INFO, "Received 'decreaseCredit'");
+
         context.request().handler(buffer -> {
             JsonObject data = buffer.toJsonObject();
             String userID = context.pathParam("userId");
@@ -138,6 +160,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     protected void handleEventSubscription(RoutingContext context){
+        logger.log(Level.INFO, "Received subscription request");
+
         Optional<String> userID = Optional.ofNullable(context.pathParam("userId"));
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
@@ -163,6 +187,8 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
             var consumer = eventBus.consumer(USER_MANAGER_EVENTS, msg -> {
                 JsonObject user = (JsonObject) msg.body();
                 if(userID.isEmpty() || userID.get().equals(user.getString("userId"))){
+                    logger.log(Level.INFO, "Sending event");
+
                     webSocket.writeTextMessage(user.encodePrettily());
                 }
             });

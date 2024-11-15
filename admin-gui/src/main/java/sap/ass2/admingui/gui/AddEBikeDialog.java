@@ -88,7 +88,7 @@ public class AddEBikeDialog extends JDialog {
                 String xCoord = xCoordField.getText();
                 String yCoord = yCoordField.getText();
 
-                adminManager.createBike(id, Integer.parseInt(xCoord), Integer.parseInt(yCoord));
+                adminManager.createEbike(id, Integer.parseInt(xCoord), Integer.parseInt(yCoord));
                 dispose(); // Close the dialog after adding the E-Bike.
             }
         });

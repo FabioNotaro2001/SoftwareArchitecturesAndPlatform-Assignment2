@@ -20,7 +20,12 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     private WebSocket webSocket;
 	
 	public EbikesManagerProxy(URL ebikesManagerAddress) {
-		vertx = Vertx.vertx();
+        if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
+        
 		this.ebikesManagerAddress = ebikesManagerAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(ebikesManagerAddress.getHost())

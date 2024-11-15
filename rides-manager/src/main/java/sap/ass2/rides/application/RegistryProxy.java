@@ -16,7 +16,11 @@ public class RegistryProxy implements RegistryRemoteAPI{
 	private Vertx vertx;
 	
 	public RegistryProxy(URL registryAddress) {
-		vertx = Vertx.vertx();
+		if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(registryAddress.getHost())
             .setDefaultPort(registryAddress.getPort());

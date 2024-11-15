@@ -43,7 +43,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         router.route(HttpMethod.GET, "/api/ebikes/:ebikeId").handler(this::getEbikeByID);
         router.route(HttpMethod.DELETE, "/api/ebikes/:ebikeId").handler(this::deleteEbike);
         router.route(HttpMethod.POST, "/api/ebikes/:ebikeId").handler(this::updateEbike);
-        router.route("/api/ebikes/events").handler(this::handleEventSubscription);
+        router.route("/api/ebikes-events").handler(this::handleEventSubscription);
         router.route("/api/ebikes/:ebikeId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);
@@ -57,13 +57,19 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     private static void sendServiceError(HttpServerResponse response, Exception ex) {
         response.setStatusCode(500);
         response.putHeader("content-type", "application/json");
-        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+
+        JsonObject err = new JsonObject();
+        err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+        response.end(err.toString());
     }
 
     private static void sendBadRequest(HttpServerResponse response, Exception ex) {
         response.setStatusCode(400);
         response.putHeader("content-type", "application/json");
-        response.end(Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+
+        JsonObject err = new JsonObject();
+        err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
+        response.end(err.toString());
     }
 
     protected void getAllEbikes(RoutingContext context) {
@@ -198,6 +204,8 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
             var consumer = eventBus.consumer(EBIKES_MANAGER_EVENTS, msg -> {
                 JsonObject ebike = (JsonObject) msg.body();
                 if(ebikeID.isEmpty() || ebikeID.get().equals(ebike.getString("ebikeId"))){
+                    logger.log(Level.INFO, "Sending event");
+
                     webSocket.writeTextMessage(ebike.encodePrettily());
                 }
             });
