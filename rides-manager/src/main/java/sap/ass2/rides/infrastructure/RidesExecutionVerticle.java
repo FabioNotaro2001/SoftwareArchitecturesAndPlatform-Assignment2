@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -26,6 +25,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
     private RideEventObserver observer;
     private EbikesManagerRemoteAPI ebikesManager;
     private UsersManagerRemoteAPI usersManager;
+    private boolean doLoop = false;
 
     // The key is rideID for both.
     Map<String, MessageConsumer<String>> rides;
@@ -75,20 +75,25 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 
         this.loopConsumer = eventBus.consumer(RIDES_STEP);
         this.loopConsumer.handler(msg -> {
+            if(!this.doLoop){
+                return;
+            }
             this.vertx.executeBlocking(() -> {
                 Thread.sleep(500);
                 return null;
             }).onComplete(h -> {
                 if (!rides.isEmpty()) {
                     eventBus.publish(RIDES_STEP, null);
+                    logger.log(Level.INFO, "LOOP STEP");
                 } else {
-                    this.loopConsumer.unregister();         // The loop stops when there are no active rides.
-
+                    //this.loopConsumer.unregister();         // The loop stops when there are no active rides.
+                    this.doLoop = false;
                     logger.log(Level.INFO, "Loop paused...");
                 }
             });
         });
-        this.loopConsumer.unregister();
+        // TODO: riga 96, 114 e 120 Bertu me le aveva fatte commentare e sostituire con variabile this.doLoop. Bisogna riportare tutto come prima???
+        //this.loopConsumer.unregister();
     }
 
     private static User jsonObjToUser(JsonObject obj) {
@@ -105,11 +110,14 @@ public class RidesExecutionVerticle extends AbstractVerticle {
      * Starts the cycle of step events when a new ride is added (if there was none before).
      */
     private void beginLoopOfEventsIfNecessary() {
-        if (this.loopConsumer.isRegistered()) {
+
+        //if (this.loopConsumer.isRegistered()) {
+        if (this.doLoop) {
             return;
         }
+        this.doLoop = true;
         logger.log(Level.INFO, "Resuming loop...");
-        this.loopConsumer.resume();
+        //this.loopConsumer.resume();
         this.vertx.eventBus().publish(RIDES_STEP, null);
     }
 

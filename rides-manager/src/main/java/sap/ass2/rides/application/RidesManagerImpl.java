@@ -67,6 +67,10 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
         return new Ebike(id, state, x, y, directionX, directionY, speed, batteryLevel);
     }
 
+    private static Ebike jsonObjToEbike(JsonObject obj){
+        return new Ebike(obj.getString("ebikeId"), EbikeState.valueOf(obj.getString("state")), obj.getDouble("x"), obj.getDouble("y"), obj.getDouble("dirX"), obj.getDouble("dirY"), obj.getDouble("speed"), obj.getInteger("batteryLevel"));
+    }
+
     @Override
     public JsonObject beginRide(String userID, String ebikeID) throws IllegalArgumentException {
         if (rides.stream().anyMatch(r -> r.getEbike().id().equals(ebikeID))) {
@@ -81,6 +85,10 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
             if(bike.isEmpty()){
                 throw new IllegalArgumentException("Ebike " + ebikeID + " doesn't exist!");
             }
+            if(jsonObjToEbike(bike.get()).state() != EbikeState.AVAILABLE){
+                throw new IllegalArgumentException("Ebike " + ebikeID + " is not available!");
+            }
+            this.ebikesManager.updateBike(ebikeID, Optional.of(EbikeState.IN_USE), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
             
             Ride newRide = new Ride(String.valueOf(this.nextRideId), userFromJSON(user.get()), ebikeFromJSON(bike.get()));
             this.rides.add(newRide);

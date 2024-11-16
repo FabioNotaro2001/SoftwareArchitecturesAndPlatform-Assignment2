@@ -3,7 +3,6 @@ package sap.ass2.ebikes.infrastructure;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -148,7 +147,13 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         logger.log(Level.INFO, "Received 'updateEbike'");
 
         context.request().handler(buffer -> {
-            JsonObject data = buffer.toJsonObject();
+            JsonObject data = null;
+            try{
+                data = buffer.toJsonObject();
+            } catch (Exception e){
+                sendBadRequest(context.response(), e);
+                return;
+            }
             String ebikeID = context.pathParam("ebikeId");
             Optional<EbikeState> state;
             Optional<Double> x, y, dirX, dirY, speed;

@@ -78,6 +78,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
                 batteryLevel.ifPresent(bl -> body.put("batteryLevel", bl));
                 
                 String payload = body.encodePrettily();
+                System.out.println(payload);
                 req.putHeader("content-length", "" + payload.length());
                 req.write(payload);
                 req.send();
