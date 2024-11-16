@@ -68,7 +68,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
     public void start() {
         // Consumer for events called from outside, specifically for stopping rides.
         this.vertx.eventBus().<Pair<String, RideStopReason>>consumer(RIDE_STOP, pair -> {
-            this.stopRideRequested.put(pair.body().first(), pair.body().second());
+            this.stopRideRequested.put(pair.body().first(), pair.body().second());  // FIXME: not working?
         });
     
         var eventBus = this.vertx.eventBus();
@@ -92,7 +92,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                 }
             });
         });
-        // TODO: riga 96, 114 e 120 Bertu me le aveva fatte commentare e sostituire con variabile this.doLoop. Bisogna riportare tutto come prima???
+        // TODO: riga 96, 114 e 120 Bertu me le aveva fatte commentare e sostituire con variabile this.doLoop. Bisogna riportare tutto come prima??? NO
         //this.loopConsumer.unregister();
     }
 
@@ -218,7 +218,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                         // Notify observer about the current ride status.
                         this.observer.rideStep(rideID, newX, newY, newDirX, newDirY, 1, newBatteryLevel);
 
-                        this.ebikesManager.updateBike(ebikeID, Optional.of(ebike.state()),
+                        this.ebikesManager.updateBike(ebikeID, Optional.empty(),
                             Optional.of(newX), Optional.of(newY),
                             Optional.of(newDirX), Optional.of(newDirY),
                             Optional.of(1.0), Optional.of(newBatteryLevel));

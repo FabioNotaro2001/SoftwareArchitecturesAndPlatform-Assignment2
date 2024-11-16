@@ -111,7 +111,7 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
             throw new IllegalArgumentException("The current user cannot stop the specified ride!");
         }
         
-        this.rideExecutor.stopRide(rideID);
+        this.rideExecutor.stopRide(rideID); // FIXME: here doesn't work
     }
 
     @Override

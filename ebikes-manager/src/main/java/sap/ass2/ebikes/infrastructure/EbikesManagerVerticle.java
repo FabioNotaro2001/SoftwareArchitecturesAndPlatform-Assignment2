@@ -149,9 +149,10 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         context.request().handler(buffer -> {
             JsonObject data = null;
             try{
+                // logger.log(Level.INFO, "Buffer size: " + buffer.length());
                 data = buffer.toJsonObject();
             } catch (Exception e){
-                sendBadRequest(context.response(), e);
+                // sendBadRequest(context.response(), e);
                 return;
             }
             String ebikeID = context.pathParam("ebikeId");
