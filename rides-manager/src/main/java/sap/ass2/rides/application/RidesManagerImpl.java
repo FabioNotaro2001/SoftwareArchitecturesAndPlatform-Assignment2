@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.rides.domain.Ebike;
@@ -66,16 +69,21 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     }
 
     @Override
-    public JsonObject beginRide(String userID, String ebikeID) throws IllegalArgumentException {
+    public Future<JsonObject> beginRide(String userID, String ebikeID) throws IllegalArgumentException {
+        Promise<JsonObject> p = Promise.promise();
         if (rides.stream().anyMatch(r -> r.getEbike().id().equals(ebikeID))) {
             throw new IllegalArgumentException("Ebike " + ebikeID + " already in use!");
         }
-        try {
-            Optional<JsonObject> user = this.usersManager.getUserByID(userID).toCompletionStage().toCompletableFuture().get();
+        
+        Future<Optional<JsonObject>> userFut = this.usersManager.getUserByID(userID);
+        Future<Optional<JsonObject>> bikeFut = this.ebikesManager.getBikeByID(ebikeID);
+        Future.all(userFut, bikeFut).onSuccess(cf -> {
+            List<Optional<JsonObject>> results = cf.list();
+            var user = results.get(0);
+            var bike = results.get(1);
             if(user.isEmpty()){
                 throw new IllegalArgumentException("User " + userID + " doesn't exist!");
             }
-            Optional<JsonObject> bike = this.ebikesManager.getBikeByID(ebikeID).toCompletionStage().toCompletableFuture().get();
             if(bike.isEmpty()){
                 throw new IllegalArgumentException("Ebike " + ebikeID + " doesn't exist!");
             }
@@ -89,10 +97,9 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
             this.nextRideId++;
             
             this.rideExecutor.launchRide(newRide.getId(), newRide.getUser().id(), newRide.getEbike().id());
-            return toJSON(newRide);
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+            p.complete(toJSON(newRide));
+        });
+        return p.future();
     }
 
     @Override

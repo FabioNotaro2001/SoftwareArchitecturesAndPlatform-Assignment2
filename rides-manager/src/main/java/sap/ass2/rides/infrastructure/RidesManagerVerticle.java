@@ -92,8 +92,10 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
             String ebikeID = data.getString("ebikeId");
             JsonObject response = new JsonObject();
             try {
-                response.put("ride", this.ridesAPI.beginRide(userID, ebikeID));
-                sendReply(context.response(), response);
+                this.ridesAPI.beginRide(userID, ebikeID).onSuccess(ride -> {
+                    response.put("ride", ride);
+                    sendReply(context.response(), response);
+                });
             } catch (Exception ex) {
                 sendServiceError(context.response(), ex);
             }
