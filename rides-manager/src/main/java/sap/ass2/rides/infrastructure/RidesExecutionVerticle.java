@@ -59,16 +59,11 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 		vertx.deployVerticle(this);
 	}
 
-    // FIXME: loop non va avanti più di un ciclo e non cambia lo stato della bici ad in uso (e forse non lo ritorna a available quando la ride termina)
-
-    // FIXME: evento di terminazione ride non viene lanciato o qualcosa del genere (il bottone della gui utente non si disattiva)
-
-    // FIXME: vertxxxxxxxxxxxxxxxxxxxxxxx di troppo
-
     public void start() {
         // Consumer for events called from outside, specifically for stopping rides.
-        this.vertx.eventBus().<Pair<String, RideStopReason>>consumer(RIDE_STOP, pair -> {
-            this.stopRideRequested.put(pair.body().first(), pair.body().second());  // FIXME: not working?
+        this.vertx.eventBus().<String>consumer(RIDE_STOP, pair -> {
+            var args = pair.body().split(" ");
+            this.stopRideRequested.put(args[0], RideStopReason.valueOf(args[1]));
         });
     
         var eventBus = this.vertx.eventBus();
@@ -86,14 +81,11 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                     eventBus.publish(RIDES_STEP, null);
                     logger.log(Level.INFO, "LOOP STEP");
                 } else {
-                    //this.loopConsumer.unregister();         // The loop stops when there are no active rides.
                     this.doLoop = false;
                     logger.log(Level.INFO, "Loop paused...");
                 }
             });
         });
-        // TODO: riga 96, 114 e 120 Bertu me le aveva fatte commentare e sostituire con variabile this.doLoop. Bisogna riportare tutto come prima??? NO
-        //this.loopConsumer.unregister();
     }
 
     private static User jsonObjToUser(JsonObject obj) {
@@ -110,14 +102,11 @@ public class RidesExecutionVerticle extends AbstractVerticle {
      * Starts the cycle of step events when a new ride is added (if there was none before).
      */
     private void beginLoopOfEventsIfNecessary() {
-
-        //if (this.loopConsumer.isRegistered()) {
         if (this.doLoop) {
             return;
         }
         this.doLoop = true;
         logger.log(Level.INFO, "Resuming loop...");
-        //this.loopConsumer.resume();
         this.vertx.eventBus().publish(RIDES_STEP, null);
     }
 
@@ -148,7 +137,9 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                         this.stopRideRequested.remove(rideID);
                         this.rides.remove(rideID);
                         this.observer.rideEnded(rideID, stopRequestedOpt.get().reason);
-                        
+
+                        Ebike ebike = jsonObjToEbike((cf.<Optional<JsonObject>>list().get(0)).get());
+                        this.ebikesManager.updateBike(ebikeID, Optional.ofNullable(ebike.batteryLevel() > 0 ? EbikeState.AVAILABLE : EbikeState.MAINTENANCE), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
                         consumer.unregister();
                         
                         logger.log(Level.INFO, "Ride " + rideID + " stopped");
@@ -244,12 +235,13 @@ public class RidesExecutionVerticle extends AbstractVerticle {
         });
 
         this.rides.put(rideID, consumer);
+        this.observer.rideStarted(rideID, userID, ebikeID);
         this.beginLoopOfEventsIfNecessary();
     }
 
     public void stopRide(String rideID) {
         if (this.rides.containsKey(rideID)) {
-            this.vertx.eventBus().publish(RIDE_STOP, Pair.of(rideID, RideStopReason.RIDE_STOPPED));
+            this.vertx.eventBus().publish(RIDE_STOP, rideID + " " + RideStopReason.RIDE_STOPPED.toString());
         }
     }
 }

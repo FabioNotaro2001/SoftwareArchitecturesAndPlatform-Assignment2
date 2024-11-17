@@ -51,17 +51,4 @@ public interface UsersManagerAPI {
      */
     void subscribeToUserEvents(UserEventObserver observer);
 
-    /**
-     * Subscribes an observer for events regarding a specific user.
-     * @param userID the user ID
-     * @param observer the observer
-     */
-    void subscribeToUserEvents(String userID, UserEventObserver observer);
-
-    /**
-     * Unsubscribes an observer for events regarding a specific user.
-     * @param userID the user ID
-     * @param observer the observer
-     */
-    void unsubscribeFromUserEvents(String userID, UserEventObserver observer);
 }

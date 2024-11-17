@@ -1,7 +1,6 @@
 package sap.ass2.rides;
 
 import java.net.URL;
-
 import sap.ass2.rides.application.EbikesManagerRemoteAPI;
 import sap.ass2.rides.application.RidesManagerAPI;
 import sap.ass2.rides.application.RidesManagerImpl;

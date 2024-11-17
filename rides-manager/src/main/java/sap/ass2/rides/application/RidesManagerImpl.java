@@ -1,13 +1,10 @@
 package sap.ass2.rides.application;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.rides.domain.Ebike;
@@ -23,19 +20,16 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     private List<Ride> rides;
     private int nextRideId;
     private List<RideEventObserver> observers;
-    private Map<RideEventObserver, String> specificRideObservers; // The string is the ride id.
-
     private RidesExecutionVerticle rideExecutor;
 
     public RidesManagerImpl(UsersManagerRemoteAPI usersManager, EbikesManagerRemoteAPI ebikesManager){
         this.usersManager = usersManager;
         this.ebikesManager = ebikesManager;
-        this.rides = new ArrayList<>();
+        this.rides = Collections.synchronizedList(new ArrayList<>());
         this.nextRideId = 0;
-        this.observers = new ArrayList<>();
-        this.specificRideObservers = new HashMap<>();
+        this.observers = Collections.synchronizedList(new ArrayList<>());
 
-        this.rideExecutor = new RidesExecutionVerticle(this, usersManager, ebikesManager); // TODO: magari passarlo dal launcher/controller/service?
+        this.rideExecutor = new RidesExecutionVerticle(this, usersManager, ebikesManager);
         this.rideExecutor.launch();
     }
 
@@ -111,7 +105,7 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
             throw new IllegalArgumentException("The current user cannot stop the specified ride!");
         }
         
-        this.rideExecutor.stopRide(rideID); // FIXME: here doesn't work
+        this.rideExecutor.stopRide(rideID); 
     }
 
     @Override
@@ -135,46 +129,18 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     }
 
     @Override
-    public void subscribeToRideEvents(String rideId, RideEventObserver observer) {
-        this.specificRideObservers.put(observer, rideId);
-    }
-    
-    @Override
-    public void unsubscribeFromRideEvents(String rideId, RideEventObserver observer) {
-        this.specificRideObservers.remove(observer, rideId);
-    }
-
-    @Override
     public void rideStarted(String rideID, String userID, String bikeID) {
         this.observers.forEach(o -> o.rideStarted(rideID, userID, bikeID));
-        this.specificRideObservers.entrySet().stream()
-            .filter(e -> e.getValue().equals(rideID))
-            .map(Map.Entry::getKey)
-            .forEach(o -> o.rideStarted(rideID, userID, bikeID));
     }
 
     @Override
     public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel) {
         this.observers.forEach(o -> o.rideStep(rideID, x, y, directionX, directionY, speed, batteryLevel));
-        this.specificRideObservers.entrySet().stream()
-            .filter(e -> e.getValue().equals(rideID))
-            .map(Map.Entry::getKey)
-            .forEach(o -> o.rideStep(rideID, x, y, directionX, directionY, speed, batteryLevel));
     }
 
     @Override
     public void rideEnded(String rideID, String reason) {
         this.observers.forEach(o -> o.rideEnded(rideID, reason));
-        var toRemove = this.specificRideObservers.entrySet().stream() // Calls the rideEnded event and removes the observers from the map.
-            .filter(e -> e.getValue().equals(rideID))
-            .map(Map.Entry::getKey)
-            .map(o -> {
-                o.rideEnded(rideID, reason);
-                return o;
-            })
-            .collect(Collectors.toList());
-
         this.rides.removeIf(r -> r.getId().equals(rideID));
-        toRemove.forEach(specificRideObservers::remove);
     }
 }

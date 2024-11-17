@@ -78,7 +78,6 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
                 batteryLevel.ifPresent(bl -> body.put("batteryLevel", bl));
                 
                 String payload = body.encodePrettily();
-                System.out.println(payload);
                 req.putHeader("content-length", "" + payload.length());
                 req.write(payload);
                 req.send();
@@ -135,12 +134,11 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
     }
 
     @Override
-    public void unsubscribeFromEbikeEvents(String bikeID, EbikeEventObserver observer) {
+    public void unsubscribeFromEbikeEvents() {
         this.webSocket.writeTextMessage("unsubscribe")
 			.onComplete(h -> {
 				this.webSocket.close();
 				this.webSocket = null;
 			});
     }
-
 }

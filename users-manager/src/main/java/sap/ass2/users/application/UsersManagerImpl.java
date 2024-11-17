@@ -1,9 +1,8 @@
 package sap.ass2.users.application;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -12,19 +11,15 @@ import sap.ass2.users.domain.User;
 import sap.ass2.users.domain.UserEventObserver;
 import sap.ass2.users.domain.UsersRepository;
 
-public class UsersManagerImpl implements UsersManagerAPI, UserEventObserver {
-
+public class UsersManagerImpl implements UsersManagerAPI {
     private final UsersRepository userRepository;
     private final List<User> users;
     private List<UserEventObserver> observers;
-    private Map<UserEventObserver, String> specificUserObservers; // The string is the user id. TODO : Magari trasformare in mappa da stringa a lista di observer.
 
     public UsersManagerImpl(UsersRepository userRepository) throws RepositoryException {
         this.userRepository = userRepository;
-        // FIXME: forse meglio usare strutture che gestiscono la concorrenza?
-        this.observers = new ArrayList<>();
-        this.specificUserObservers = new HashMap<>();
-        this.users = userRepository.getUsers();
+        this.observers = Collections.synchronizedList(new ArrayList<>());
+        this.users = Collections.synchronizedList(userRepository.getUsers());
     }
 
     private static JsonObject toJSON(User user) {
@@ -40,15 +35,13 @@ public class UsersManagerImpl implements UsersManagerAPI, UserEventObserver {
 
     private void notifyObservers(User user) {
         this.observers.forEach(o -> o.userUpdated(user.getId(), user.getCredit()));
-        this.specificUserObservers.entrySet().stream()
-            .filter(e -> e.getValue().equals(user.getId()))
-            .forEach(e -> e.getKey().userUpdated(user.getId(), user.getCredit()));
     }
 
     @Override
     public JsonObject createUser(String userID) throws RepositoryException {
         var user = new User(userID, 0);
         this.userRepository.saveUser(user);
+        this.users.add(user);
         this.notifyObservers(user);
         return UsersManagerImpl.toJSON(user);
     }
@@ -69,7 +62,7 @@ public class UsersManagerImpl implements UsersManagerAPI, UserEventObserver {
         var user = userOpt.get(); // Get user.
         user.rechargeCredit(credit); // Recharge user credits.
         this.userRepository.saveUser(user); // Persist user changes.
-        this.notifyObservers(user); // FIXME: Possibile incosistenza se il repo non registra l'utente.
+        this.notifyObservers(user); 
     }
 
     @Override
@@ -88,21 +81,5 @@ public class UsersManagerImpl implements UsersManagerAPI, UserEventObserver {
     @Override
     public void subscribeToUserEvents(UserEventObserver observer) {
         this.observers.add(observer);
-    }
-
-    @Override
-    public void subscribeToUserEvents(String userID, UserEventObserver observer) { //FIXME: Probabilmente non la useremo, perchè non necessaria al verticle.
-        this.specificUserObservers.put(observer, userID);
-    }
-
-    @Override
-    public void unsubscribeFromUserEvents(String userID, UserEventObserver observer) {
-        this.specificUserObservers.remove(observer, userID);
-    }
-
-    @Override
-    public void userUpdated(String userID, int credit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'userUpdated'");
     }
 }

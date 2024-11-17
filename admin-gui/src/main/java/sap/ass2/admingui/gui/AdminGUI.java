@@ -69,19 +69,29 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
     }
     
     protected void setupModel() {
-        this.ebikeManager.subscribeToEbikeEvents(this).onSuccess( ebikesArray -> {
-			this.bikes.putAll(ebikesArray.stream().map(e -> jsonObjToEbike((JsonObject)e)).collect(Collectors.toMap(Ebike::id, ebike -> ebike)));
-			this.bikesModel.addAll(bikes.values().stream().map(Ebike::toString).toList());
+        var ebikesFut = this.ebikeManager.subscribeToEbikeEvents(this);
+		ebikesFut.onSuccess( ebikesArray -> {
+			SwingUtilities.invokeLater(() -> {
+				this.bikes.putAll(ebikesArray.stream().map(e -> jsonObjToEbike((JsonObject)e)).collect(Collectors.toMap(Ebike::id, ebike -> ebike)));
+				this.bikesModel.addAll(bikes.values().stream().map(Ebike::toString).toList());
+				this.refreshView();
+			});
 		}); // Add all ebikes to the model.
 
-        this.ridesManager.subscribeToRideEvents(this).onSuccess( ridesArray -> {
-			this.rides.putAll(ridesArray.stream().map(r -> jsonObjToRide((JsonObject)r)).collect(Collectors.toMap(Ride::rideId, ride -> ride)));
-			this.ridesModel.addAll(rides.values().stream().map(Ride::toString).toList());
+        var ridesFut = this.ridesManager.subscribeToRideEvents(this);
+		ridesFut.onSuccess( ridesArray -> {
+			SwingUtilities.invokeLater(() -> {
+				this.rides.putAll(ridesArray.stream().map(r -> jsonObjToRide((JsonObject)r)).collect(Collectors.toMap(Ride::rideId, ride -> ride)));
+				this.ridesModel.addAll(rides.values().stream().map(Ride::toString).toList());
+			});
 		}); // Add all rides to the model.
 
-		this.usersManager.subscribeToUsersEvents(this).onSuccess( usersArray -> {
-			this.users.putAll(usersArray.stream().map(u -> jsonObjToUser((JsonObject)u)).collect(Collectors.toMap(User::id, user -> user))); 
-			this.usersModel.addAll(users.values().stream().map(User::toString).toList());
+		var usersFut = this.usersManager.subscribeToUsersEvents(this);
+		usersFut.onSuccess( usersArray -> {
+			SwingUtilities.invokeLater(() -> {
+				this.users.putAll(usersArray.stream().map(u -> jsonObjToUser((JsonObject)u)).collect(Collectors.toMap(User::id, user -> user))); 
+				this.usersModel.addAll(users.values().stream().map(User::toString).toList());
+			});
 		}); // Add all users to the model.
     }
 
@@ -198,6 +208,8 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
     	// Show the admin GUI on the Event Dispatch Thread.
     	SwingUtilities.invokeLater(() -> {
     		this.setVisible(true);
+			this.revalidate();
+			this.repaint();
     	});
     }
     
@@ -284,7 +296,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 
 	@Override
 	public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel){
-		var ride = rides.get(rideID); 		// FIXME: ride contiene campi null (scoprire da dove vengono)
+		var ride = rides.get(rideID); 
 		var bike = bikes.get(ride.ebikeId());
 		var newBike = new Ebike(bike.id(), bike.state(), x, y, directionX, directionY, speed, batteryLevel);
 		addOrReplaceEBike(newBike); // Update bike list model.

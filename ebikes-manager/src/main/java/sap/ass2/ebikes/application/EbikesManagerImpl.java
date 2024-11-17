@@ -1,9 +1,8 @@
 package sap.ass2.ebikes.application;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -20,14 +19,12 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     private final EbikesRepository ebikeRepository;
     private final List<Ebike> ebikes;
     private List<EbikeEventObserver> observers;
-    private Map<EbikeEventObserver, String> specificEbikeObservers; // The string is the ebike id. TODO : Magari trasformare in mappa da stringa a lista di observer.
 
     public EbikesManagerImpl(EbikesRepository repository) throws RepositoryException {
         this.ebikeRepository = repository;
-        // FIXME: forse meglio usare strutture che gestiscono la concorrenza?
-        this.ebikes = ebikeRepository.getEbikes();
-        this.observers = new ArrayList<>();
-        this.specificEbikeObservers = new HashMap<>();
+        this.ebikes = Collections.synchronizedList(ebikeRepository.getEbikes());
+        this.observers = Collections.synchronizedList(new ArrayList<>());
+        
     }
 
     private static JsonObject toJSON(Ebike ebike) {
@@ -52,19 +49,10 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
             ebike.getLocation().x(), ebike.getLocation().y(), 
             ebike.getDirection().x(), ebike.getDirection().y(), ebike.getSpeed(), 
             ebike.getBatteryLevel()));
-        this.specificEbikeObservers.entrySet().stream()
-            .filter(e -> e.getValue().equals(ebike.getId()))
-            .forEach(e -> e.getKey().ebikeUpdated(ebike.getId(), ebike.getState(), 
-                ebike.getLocation().x(), ebike.getLocation().y(), 
-                ebike.getDirection().x(), ebike.getDirection().y(), ebike.getSpeed(), 
-                ebike.getBatteryLevel()));
     }
     
     private void notifyObserversAboutRemoval(String ebikeID) {
         this.observers.forEach(o -> o.ebikeRemoved(ebikeID));
-        this.specificEbikeObservers.entrySet().stream()
-            .filter(e -> e.getValue().equals(ebikeID))
-            .forEach(e -> e.getKey().ebikeRemoved(ebikeID));
     }
 
     @Override
@@ -74,7 +62,7 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
 
     @Override
     public JsonObject createEbike(String ebikeID, double locationX, double locationY) throws RepositoryException, IllegalArgumentException {
-        if (this.ebikes.stream().anyMatch(ebike -> ebike.getId().equals(ebikeID))) {  //FIXME: forse meglio usare una mappa da id ad ebike?
+        if (this.ebikes.stream().anyMatch(ebike -> ebike.getId().equals(ebikeID))) {
             throw new IllegalArgumentException("Ebike with given id already exists.");
         }
 
@@ -151,16 +139,6 @@ public class EbikesManagerImpl implements EbikesManagerAPI {
     @Override
     public void subscribeToEbikeEvents(EbikeEventObserver observer) {
         this.observers.add(observer);
-    }
-
-    @Override
-    public void subscribeToEbikeEvents(String ebikeID, EbikeEventObserver observer) {
-        this.specificEbikeObservers.put(observer, ebikeID);
-    }
-
-    @Override
-    public void unsubscribeFromEbikeEvents(String ebikeID, EbikeEventObserver observer) {
-        this.specificEbikeObservers.remove(observer, ebikeID);
     }
 
 }

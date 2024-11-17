@@ -4,14 +4,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
 import io.vertx.core.Future;
 import sap.ass2.admingui.gui.AdminGUI;
 import sap.ass2.admingui.library.*;
 
 public class AdminGuiLauncher {
     public static void main(String[] args) throws MalformedURLException {
-        // TODO: la admin gui non mostra subito le bici nello spazio, ma compaiono se abbassi la finestra e la riapri.
         RegistryRemoteAPI registry = new RegistryProxy(URI.create("http://localhost:9000").toURL());
         
         var usersFut = registry.lookupUsersManager("users-manager");

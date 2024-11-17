@@ -6,7 +6,6 @@ import io.vertx.core.json.JsonObject;
 import sap.ass2.usergui.domain.Ride;
 import sap.ass2.usergui.library.EbikesManagerRemoteAPI;
 import sap.ass2.usergui.library.RidesManagerRemoteAPI;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

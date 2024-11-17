@@ -27,9 +27,9 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
     static Logger logger = Logger.getLogger("[Ebikes Manager Verticle]");	
 
     
-    public EbikesManagerVerticle(int port, EbikesManagerAPI usersAPI) {
+    public EbikesManagerVerticle(int port, EbikesManagerAPI ebikesAPI) {
         this.port = port;
-        this.ebikesAPI = usersAPI;
+        this.ebikesAPI = ebikesAPI;
     }
 
     public void start() {
@@ -217,8 +217,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
             });
 
             webSocket.textMessageHandler(data -> {
-                JsonObject obj = new JsonObject(data);
-                if(obj.containsKey("unsubscribe")){
+                if(data.equals("unsubscribe")){
                     consumer.unregister();
                     webSocket.close();
                 }

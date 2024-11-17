@@ -12,9 +12,14 @@ public class RidesManagerController {
     }
     
     public void init(RidesManagerAPI ridesAPI){
-        Vertx v = Vertx.vertx();
+        Vertx vertx;
+        if (Vertx.currentContext() != null) {
+			vertx = Vertx.currentContext().owner();
+		} else {
+			vertx = Vertx.vertx();
+		}
         this.service = new RidesManagerVerticle(this.port, ridesAPI);
-        v.deployVerticle(this.service);
+        vertx.deployVerticle(this.service);
         ridesAPI.subscribeToRideEvents(this.service);
     }
 }

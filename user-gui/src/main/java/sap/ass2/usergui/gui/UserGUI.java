@@ -10,9 +10,7 @@ import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
-
 import javax.swing.*;
-
 import io.vertx.core.json.JsonObject;
 import sap.ass2.usergui.domain.*;
 import sap.ass2.usergui.library.EbikesManagerRemoteAPI;

@@ -4,9 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
 import sap.ass2.usergui.gui.UserGUI;
 import sap.ass2.usergui.library.EbikesManagerProxy;
 import sap.ass2.usergui.library.EbikesManagerRemoteAPI;

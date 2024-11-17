@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
@@ -181,15 +180,14 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
             var consumer = eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> {                
                 JsonObject ride = (JsonObject) msg.body();
                 if(rideID.isEmpty() || rideID.get().equals(ride.getString("rideId"))){
-                    logger.log(Level.INFO, "Sending event");
+                    logger.log(Level.INFO, "Sending event " + ride.getString("event"));
                     
                     webSocket.writeTextMessage(ride.encodePrettily());
                 }
             });
 
             webSocket.textMessageHandler(data -> {
-                JsonObject obj = new JsonObject(data);
-                if(obj.containsKey("unsubscribe")){
+                if(data.equals("unsubscribe")){
                     consumer.unregister();
                     webSocket.close();
                 }
@@ -209,7 +207,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     @Override
-    public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel) {   // TODO: invocato (oltre agli altri) nel thread/verticle della ride specifica
+    public void rideStep(String rideID, double x, double y, double directionX, double directionY, double speed, int batteryLevel) {
         var eventBus = vertx.eventBus();
         var obj = new JsonObject()
             .put("event", STEP_EVENT)

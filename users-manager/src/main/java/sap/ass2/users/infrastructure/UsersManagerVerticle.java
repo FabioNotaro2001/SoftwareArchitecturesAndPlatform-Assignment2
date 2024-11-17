@@ -3,7 +3,6 @@ package sap.ass2.users.infrastructure;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -194,8 +193,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
             });
 
             webSocket.textMessageHandler(data -> {
-                JsonObject obj = new JsonObject(data);
-                if(obj.containsKey("unsubscribe")){
+                if(data.equals("unsubscribe")){
                     consumer.unregister();
                     webSocket.close();
                 }

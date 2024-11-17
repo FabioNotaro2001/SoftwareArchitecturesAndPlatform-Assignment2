@@ -9,5 +9,5 @@ public interface EbikesManagerRemoteAPI {
     Future<Optional<JsonObject>> getBikeByID(String bikeID);
     Future<Void> updateBike(String bikeID, Optional<EbikeState> state, Optional<Double> locationX, Optional<Double> locationY, Optional<Double> directionX, Optional<Double> directionY, Optional<Double> speed, Optional<Integer> batteryLevel);
     Future<JsonObject> subscribeToEbikeEvents(String bikeID, EbikeEventObserver observer);
-    void unsubscribeFromEbikeEvents(String bikeID, EbikeEventObserver observer);
+    void unsubscribeFromEbikeEvents();
 }

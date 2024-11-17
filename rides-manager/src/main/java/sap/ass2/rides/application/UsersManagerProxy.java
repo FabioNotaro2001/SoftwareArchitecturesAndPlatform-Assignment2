@@ -117,7 +117,7 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 	}
 
 	@Override
-	public void unsubscribeFromUserEvents(String userID, UserEventObserver observer) {
+	public void unsubscribeFromUserEvents() {
 		this.webSocket.writeTextMessage("unsubscribe")
 			.onComplete(h -> {
 				this.webSocket.close();

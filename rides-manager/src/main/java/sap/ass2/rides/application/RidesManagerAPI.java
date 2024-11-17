@@ -13,6 +13,4 @@ public interface RidesManagerAPI {
     Optional<JsonObject> getRideByEbikeID(String ebikeID);
     Optional<JsonObject> getRideByUserID(String userID);
     void subscribeToRideEvents(RideEventObserver observer);
-    void subscribeToRideEvents(String rideId, RideEventObserver observer);
-    void unsubscribeFromRideEvents(String rideId, RideEventObserver observer);
 }
