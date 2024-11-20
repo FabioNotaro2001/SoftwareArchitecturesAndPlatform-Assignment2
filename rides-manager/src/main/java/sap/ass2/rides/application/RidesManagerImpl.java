@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
@@ -44,8 +42,8 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     }
 
     @Override
-    public JsonArray getAllRides() {
-        return this.rides.stream().map(RidesManagerImpl::toJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll);
+    public Future<JsonArray> getAllRides() {
+        return Future.succeededFuture(this.rides.stream().map(RidesManagerImpl::toJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll));
     }
 
     private static User userFromJSON(JsonObject obj){
@@ -103,7 +101,7 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
     }
 
     @Override
-    public void stopRide(String rideID, String userID) throws IllegalArgumentException {
+    public Future<Void> stopRide(String rideID, String userID) throws IllegalArgumentException {
         var ride = this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst();
         if(ride.isEmpty()){
             throw new IllegalArgumentException("Ride not found!");
@@ -113,21 +111,22 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
         }
         
         this.rideExecutor.stopRide(rideID); 
+        return Future.succeededFuture();
     }
 
     @Override
-    public Optional<JsonObject> getRideByRideID(String rideID) {
-        return this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst().map(RidesManagerImpl::toJSON);
+    public Future<Optional<JsonObject>> getRideByRideID(String rideID) {
+        return Future.succeededFuture(this.rides.stream().filter(r -> r.getId().equals(rideID)).findFirst().map(RidesManagerImpl::toJSON));
     }
 
     @Override
-    public Optional<JsonObject> getRideByEbikeID(String bikeID) {
-        return this.rides.stream().filter(r -> r.getEbike().id().equals(bikeID)).findFirst().map(RidesManagerImpl::toJSON);
+    public Future<Optional<JsonObject>> getRideByEbikeID(String bikeID) {
+        return Future.succeededFuture(this.rides.stream().filter(r -> r.getEbike().id().equals(bikeID)).findFirst().map(RidesManagerImpl::toJSON));
     }
 
     @Override
-    public Optional<JsonObject> getRideByUserID(String userID) {
-        return this.rides.stream().filter(r -> r.getUser().id().equals(userID)).findFirst().map(RidesManagerImpl::toJSON);
+    public Future<Optional<JsonObject>> getRideByUserID(String userID) {
+        return Future.succeededFuture(this.rides.stream().filter(r -> r.getUser().id().equals(userID)).findFirst().map(RidesManagerImpl::toJSON));
     }
 
     @Override

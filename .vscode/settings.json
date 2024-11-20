@@ -1,4 +1,6 @@
 {
-    "java.project.sourcePaths": [],
+    "java.project.sourcePaths": [
+        "apigateway/src/main/java"
+    ],
     "java.configuration.updateBuildConfiguration": "interactive"
 }
