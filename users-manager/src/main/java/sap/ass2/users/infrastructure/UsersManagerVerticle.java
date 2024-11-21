@@ -19,7 +19,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     private int port;
     private UsersManagerAPI usersAPI;
 
-    private static final String USER_MANAGER_EVENTS = "users-manager-events";
+    private static final String USER_MANAGER_EVENTS = "users-manager/events";
 
     static Logger logger = Logger.getLogger("[Users Manager Verticle]");
 
@@ -34,10 +34,10 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
         
         router.route(HttpMethod.GET, "/api/users").handler(this::getAllUsers);
         router.route(HttpMethod.POST, "/api/users").handler(this::createUser);
+        router.route("/api/users/events").handler(this::handleEventSubscription);
         router.route(HttpMethod.GET, "/api/users/:userId").handler(this::getUserByID);
         router.route(HttpMethod.POST, "/api/users/:userId/recharge-credit").handler(this::rechargeCredit);
         router.route(HttpMethod.POST, "/api/users/:userId/decrease-credit").handler(this::decreaseCredit);
-        router.route("/api/users-events").handler(this::handleEventSubscription);
         router.route("/api/users/:userId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);

@@ -20,7 +20,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private int port;
     private RidesManagerAPI ridesAPI;
     
-    private static final String RIDES_MANAGER_EVENTS = "rides-manager-events";
+    private static final String RIDES_MANAGER_EVENTS = "rides-manager/events";
     
     private static final String RIDE_ID_TYPE = "ride";
     private static final String USER_ID_TYPE = "user";
@@ -44,8 +44,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
         router.route(HttpMethod.GET, "/api/rides").handler(this::getAllRides);
         router.route(HttpMethod.POST, "/api/rides").handler(this::beginRide);
         router.route(HttpMethod.DELETE, "/api/rides").handler(this::stopRide);
+        router.route("/api/rides/events").handler(this::handleEventSubscription);
         router.route(HttpMethod.GET, "/api/rides/:rideId").handler(this::getRideByID);
-        router.route("/api/rides-events").handler(this::handleEventSubscription);
         router.route("/api/rides/:rideId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);

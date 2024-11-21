@@ -114,7 +114,7 @@ public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
 				  .setHost(this.ebikesManagerAddress.getHost())
 				  .setPort(this.ebikesManagerAddress.getPort())
-				  .setURI("/api/ebikes-events")
+				  .setURI("/api/ebikes/events")
 				  .setAllowOriginHeader(false);
 		
 		client

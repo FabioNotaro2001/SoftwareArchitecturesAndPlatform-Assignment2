@@ -19,7 +19,7 @@ import sap.ass2.ebikes.domain.EbikeEventObserver;
 public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEventObserver{
     private int port;
     private EbikesManagerAPI ebikesAPI;
-    private static final String EBIKES_MANAGER_EVENTS = "ebikes-manager-events";
+    private static final String EBIKES_MANAGER_EVENTS = "ebikes-manager/events";
     
     private static final String UPDATE_EVENT = "ebike-update";
     private static final String REMOVE_EVENT = "ebike-remove";
@@ -39,10 +39,10 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         router.route(HttpMethod.GET, "/api/ebikes").handler(this::getAllEbikes);
         router.route(HttpMethod.GET, "/api/ebikes/ids").handler(this::getAllAvailableEbikesIds);
         router.route(HttpMethod.POST, "/api/ebikes").handler(this::createEbike);
+        router.route("/api/ebikes/events").handler(this::handleEventSubscription);
         router.route(HttpMethod.GET, "/api/ebikes/:ebikeId").handler(this::getEbikeByID);
         router.route(HttpMethod.DELETE, "/api/ebikes/:ebikeId").handler(this::deleteEbike);
         router.route(HttpMethod.POST, "/api/ebikes/:ebikeId").handler(this::updateEbike);
-        router.route("/api/ebikes-events").handler(this::handleEventSubscription);
         router.route("/api/ebikes/:ebikeId/events").handler(this::handleEventSubscription);
         
         server.requestHandler(router).listen(this.port);

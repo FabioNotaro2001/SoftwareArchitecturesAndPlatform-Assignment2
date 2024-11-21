@@ -24,6 +24,8 @@ public class RegistryVerticle extends AbstractVerticle {
         this.registryAPI = registryAPI;
     }
 
+    // TODO: rifare con spring boot
+
     public void start() {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);

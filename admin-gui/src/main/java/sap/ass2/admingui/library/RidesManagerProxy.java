@@ -59,7 +59,7 @@ public class RidesManagerProxy implements RidesManagerRemoteAPI {
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
 				  .setHost(this.ridesManagerAddress.getHost())
 				  .setPort(this.ridesManagerAddress.getPort())
-				  .setURI("/api/rides-events")
+				  .setURI("/api/rides/events")
 				  .setAllowOriginHeader(false);
 		
 		client

@@ -58,7 +58,7 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
 				  .setHost(this.usersManagerAddress.getHost())
 				  .setPort(this.usersManagerAddress.getPort())
-				  .setURI("/api/users-events")
+				  .setURI("/api/users/events")
 				  .setAllowOriginHeader(false);
 		
 		client
