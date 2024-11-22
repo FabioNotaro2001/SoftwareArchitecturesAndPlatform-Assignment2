@@ -39,14 +39,10 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 	private Map<String, Ebike> bikes = new HashMap<>(); // Map of E-Bikes.
 	private Map<String, Ride> rides = new HashMap<>(); // Map of rides.
 
-	private EbikesManagerRemoteAPI ebikeManager;
-	private RidesManagerRemoteAPI ridesManager;
-	private UsersManagerRemoteAPI usersManager;
+	private ApplicationAPI app;
 
-    public AdminGUI(EbikesManagerRemoteAPI ebikesManager, RidesManagerRemoteAPI ridesManager, UsersManagerRemoteAPI usersManager) {
-		this.ebikeManager = ebikesManager;
-		this.ridesManager = ridesManager;
-		this.usersManager = usersManager;
+    public AdminGUI(ApplicationAPI app) {
+		this.app = app;
 
 		this.usersModel = new DefaultListModel<>(); // Create model for user list.
 		this.bikesModel = new DefaultListModel<>(); // Create model for bike list.
@@ -69,7 +65,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
     }
     
     protected void setupModel() {
-        var ebikesFut = this.ebikeManager.subscribeToEbikeEvents(this);
+        var ebikesFut = this.app.ebikes().subscribeToEbikeEvents(this);
 		ebikesFut.onSuccess( ebikesArray -> {
 			SwingUtilities.invokeLater(() -> {
 				this.bikes.putAll(ebikesArray.stream().map(e -> jsonObjToEbike((JsonObject)e)).collect(Collectors.toMap(Ebike::id, ebike -> ebike)));
@@ -78,7 +74,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 			});
 		}); // Add all ebikes to the model.
 
-        var ridesFut = this.ridesManager.subscribeToRideEvents(this);
+        var ridesFut = this.app.rides().subscribeToRideEvents(this);
 		ridesFut.onSuccess( ridesArray -> {
 			SwingUtilities.invokeLater(() -> {
 				this.rides.putAll(ridesArray.stream().map(r -> jsonObjToRide((JsonObject)r)).collect(Collectors.toMap(Ride::rideId, ride -> ride)));
@@ -86,7 +82,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 			});
 		}); // Add all rides to the model.
 
-		var usersFut = this.usersManager.subscribeToUsersEvents(this);
+		var usersFut = this.app.users().subscribeToUsersEvents(this);
 		usersFut.onSuccess( usersArray -> {
 			SwingUtilities.invokeLater(() -> {
 				this.users.putAll(usersArray.stream().map(u -> jsonObjToUser((JsonObject)u)).collect(Collectors.toMap(User::id, user -> user))); 
@@ -137,6 +133,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
     }
 
 	private void addOrReplaceRide(Ride info) {
+
 		// Add or replace a ride in the rides map and update the model.
 		var old = rides.put(info.rideId(), info);
 		if (old == null) {
@@ -222,7 +219,7 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 	public void actionPerformed(ActionEvent e) {
         // Handle action events.
         if (e.getSource() == this.addEBikeButton) {
-	        JDialog d = new AddEBikeDialog(this, ebikeManager); // Open dialog to add new E-Bike.
+	        JDialog d = new AddEBikeDialog(this, app); // Open dialog to add new E-Bike.
 	        d.setVisible(true);
         }
 	}
@@ -267,31 +264,31 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 		Ebike eBikeInfo;
 
 		if (state == EbikeState.DISMISSED) {
-			removeEBike(bikeID); // Remove bike if dismissed.
+			SwingUtilities.invokeLater(() -> removeEBike(bikeID)); // Remove bike if dismissed.
 		} else {	
 			// Create or update E-Bike info.
 			eBikeInfo = new Ebike(bikeID, state, locationX, locationY, directionX, directionY, speed, batteryLevel);
-			addOrReplaceEBike(eBikeInfo); // Update the bike list model.
+			SwingUtilities.invokeLater(() -> addOrReplaceEBike(eBikeInfo)); // Update the bike list model.
 		}
 
 		// Remove ongoing ride if bike is not in use.
 		if (state != EbikeState.IN_USE) {
 			var ride = rides.values().stream().filter(r -> r.ebikeId().equals(bikeID)).findFirst();
 			if (ride.isPresent()) {
-				removeRide(ride.get().rideId()); // Remove the ride from the model.
+				SwingUtilities.invokeLater(() -> removeRide(ride.get().rideId())); // Remove the ride from the model.
 			}
 		}
-		centralPanel.refresh(); // Refresh the visualizer panel.
+		// centralPanel.refresh(); // Refresh the visualizer panel.
 	}
 
 	@Override
 	public void bikeRemoved(String bikeID) {
-		this.removeEBike(bikeID);
+		SwingUtilities.invokeLater(() -> this.removeEBike(bikeID));
 	}
 
 	@Override
 	public void rideStarted(String rideID, String userID, String bikeID) {
-		addOrReplaceRide(new Ride(rideID, userID, bikeID));
+		SwingUtilities.invokeLater(() -> this.addOrReplaceRide(new Ride(rideID, userID, bikeID)));
 	}
 
 	@Override
@@ -299,18 +296,20 @@ public class AdminGUI extends JFrame implements ActionListener, UserEventObserve
 		var ride = rides.get(rideID); 
 		var bike = bikes.get(ride.ebikeId());
 		var newBike = new Ebike(bike.id(), bike.state(), x, y, directionX, directionY, speed, batteryLevel);
-		addOrReplaceEBike(newBike); // Update bike list model.
 
-		centralPanel.refresh(); // Refresh the visualizer panel.
+		SwingUtilities.invokeLater(() -> {
+			addOrReplaceEBike(newBike); // Update bike list model.
+			centralPanel.refresh(); // Refresh the visualizer panel.
+		});
 	}
 
 	@Override
 	public void rideEnded(String rideID, String reason) {
-		this.removeRide(rideID);
+		SwingUtilities.invokeLater(() -> this.removeRide(rideID));
 	}
 
 	@Override
 	public void userUpdated(String userID, int credit) {
-		this.addOrReplaceUser(new User(userID, credit));
+		SwingUtilities.invokeLater(() -> this.addOrReplaceUser(new User(userID, credit)));
 	}
 }

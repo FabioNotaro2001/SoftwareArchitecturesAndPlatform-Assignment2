@@ -1,7 +1,8 @@
 package sap.ass2.admingui.gui;
 
 import javax.swing.*;
-import sap.ass2.admingui.library.EbikesManagerRemoteAPI;
+
+import sap.ass2.admingui.library.ApplicationAPI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,12 +14,12 @@ import java.awt.event.ActionListener;
  */
 public class AddEBikeDialog extends JDialog {
 
-    private JTextField idField; // Field for E-Bike ID input.
+    private JTextField idField;     // Field for E-Bike ID input.
     private JTextField xCoordField; // Field for X coordinate input.
     private JTextField yCoordField; // Field for Y coordinate input.
-    private JButton okButton; // Button to confirm E-Bike addition.
-    private JButton cancelButton; // Button to cancel the addition.
-    private EbikesManagerRemoteAPI adminManager; // Service to handle E-Bike operations.
+    private JButton okButton;       // Button to confirm E-Bike addition.
+    private JButton cancelButton;   // Button to cancel the addition.
+    private ApplicationAPI app;     // Service to handle E-Bike operations.
 
     /**
      * Constructor for AddEBikeDialog.
@@ -27,14 +28,14 @@ public class AddEBikeDialog extends JDialog {
      * @param owner The parent AdminGUI that owns this dialog.
      * @param adminService The service to manage E-Bikes.
      */
-    public AddEBikeDialog(AdminGUI owner, EbikesManagerRemoteAPI adminService) {
-        super(owner, "Adding E-Bike", true); // Set dialog title and modality.
-        this.adminManager = adminService; // Store reference to the AdminService.
-        initializeComponents(); // Initialize UI components.
-        setupLayout(); // Set up the layout of the dialog.
-        addEventHandlers(); // Register action listeners for buttons.
-        pack(); // Size the dialog to fit its contents.
-        setLocationRelativeTo(owner); // Center dialog relative to the owner.
+    public AddEBikeDialog(AdminGUI owner, ApplicationAPI app) {
+        super(owner, "Adding E-Bike", true);    // Set dialog title and modality.
+        this.app = app; 
+        initializeComponents();                 // Initialize UI components.
+        setupLayout();                          // Set up the layout of the dialog.
+        addEventHandlers();                     // Register action listeners for buttons.
+        pack();                                 // Size the dialog to fit its contents.
+        setLocationRelativeTo(owner);           // Center dialog relative to the owner.
     }
 
     /**
@@ -42,11 +43,11 @@ public class AddEBikeDialog extends JDialog {
      * Creates text fields and buttons for user input.
      */
     private void initializeComponents() {
-        idField = new JTextField(15); // Text field for entering E-Bike ID.
-        xCoordField = new JTextField(15); // Text field for entering X coordinate.
-        yCoordField = new JTextField(15); // Text field for entering Y coordinate.
-        okButton = new JButton("OK"); // Button to confirm addition.
-        cancelButton = new JButton("Cancel"); // Button to cancel the operation.
+        idField = new JTextField(15);           // Text field for entering E-Bike ID.
+        xCoordField = new JTextField(15);       // Text field for entering X coordinate.
+        yCoordField = new JTextField(15);       // Text field for entering Y coordinate.
+        okButton = new JButton("OK");           // Button to confirm addition.
+        cancelButton = new JButton("Cancel");   // Button to cancel the operation.
     }
 
     /**
@@ -88,7 +89,7 @@ public class AddEBikeDialog extends JDialog {
                 String xCoord = xCoordField.getText();
                 String yCoord = yCoordField.getText();
 
-                adminManager.createEbike(id, Integer.parseInt(xCoord), Integer.parseInt(yCoord));
+                app.ebikes().createEbike(id, Integer.parseInt(xCoord), Integer.parseInt(yCoord));
                 dispose(); // Close the dialog after adding the E-Bike.
             }
         });
