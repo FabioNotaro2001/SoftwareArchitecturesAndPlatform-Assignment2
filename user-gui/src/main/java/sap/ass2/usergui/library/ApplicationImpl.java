@@ -27,5 +27,4 @@ public class ApplicationImpl implements ApplicationAPI {
     public RidesAPI rides() {
         return this.rides;
     }
-
 }
