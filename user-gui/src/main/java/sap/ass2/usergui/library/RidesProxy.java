@@ -11,23 +11,23 @@ import io.vertx.core.http.WebSocket;
 import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonObject;
 
-public class RidesManagerProxy implements RidesManagerRemoteAPI {
+public class RidesProxy implements RidesAPI {
     private HttpClient client;
 	private Vertx vertx;
 	private URL ridesManagerAddress;
 	private WebSocket webSocket;
 	
-	public RidesManagerProxy(URL ridesManagerAddress) {
+	public RidesProxy(URL appAddress) {
 		if (Vertx.currentContext() != null) {
 			vertx = Vertx.currentContext().owner();
 		} else {
 			vertx = Vertx.vertx();
 		}
 		
-		this.ridesManagerAddress = ridesManagerAddress;
+		this.ridesManagerAddress = appAddress;
 		HttpClientOptions options = new HttpClientOptions()
-            .setDefaultHost(ridesManagerAddress.getHost())
-            .setDefaultPort(ridesManagerAddress.getPort());
+            .setDefaultHost(appAddress.getHost())
+            .setDefaultPort(appAddress.getPort());
 		client = vertx.createHttpClient(options);
 	}
 

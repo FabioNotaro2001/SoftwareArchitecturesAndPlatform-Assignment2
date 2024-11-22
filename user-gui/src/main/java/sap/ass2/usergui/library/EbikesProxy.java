@@ -12,23 +12,23 @@ import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class EbikesManagerProxy implements EbikesManagerRemoteAPI {
+public class EbikesProxy implements EbikesAPI {
     private HttpClient client;
 	private Vertx vertx;
 	private URL ebikesManagerAddress;
 	private WebSocket webSocket;
 	
-	public EbikesManagerProxy(URL ebikesManagerAddress) {
+	public EbikesProxy(URL appAddress) {
 		if (Vertx.currentContext() != null) {
 			vertx = Vertx.currentContext().owner();
 		} else {
 			vertx = Vertx.vertx();
 		}
 		
-		this.ebikesManagerAddress = ebikesManagerAddress;
+		this.ebikesManagerAddress = appAddress;
 		HttpClientOptions options = new HttpClientOptions()
-            .setDefaultHost(ebikesManagerAddress.getHost())
-            .setDefaultPort(ebikesManagerAddress.getPort());
+            .setDefaultHost(appAddress.getHost())
+            .setDefaultPort(appAddress.getPort());
 		client = vertx.createHttpClient(options);
 	}
 

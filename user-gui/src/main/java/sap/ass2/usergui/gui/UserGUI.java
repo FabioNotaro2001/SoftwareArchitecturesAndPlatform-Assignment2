@@ -13,11 +13,9 @@ import java.util.stream.Collectors;
 import javax.swing.*;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.usergui.domain.*;
-import sap.ass2.usergui.library.EbikesManagerRemoteAPI;
+import sap.ass2.usergui.library.ApplicationAPI;
 import sap.ass2.usergui.library.RideEventObserver;
-import sap.ass2.usergui.library.RidesManagerRemoteAPI;
 import sap.ass2.usergui.library.UserEventObserver;
-import sap.ass2.usergui.library.UsersManagerRemoteAPI;
 
 
 public class UserGUI extends JFrame implements ActionListener, UserEventObserver, RideEventObserver {
@@ -33,15 +31,11 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     private CardLayout cardLayout;                  // Layout manager for switching views.
     private User selectedUser;                      // Currently selected user.
     private Ride launchedRide;                      // Information about the current ride.
-    private UsersManagerRemoteAPI userManager;
-    private RidesManagerRemoteAPI ridesManager;
-    private EbikesManagerRemoteAPI ebikesManager;
+    private ApplicationAPI app;
     private List<User> availableUsers;
 
-    public UserGUI(UsersManagerRemoteAPI usersManager, RidesManagerRemoteAPI ridesManager, EbikesManagerRemoteAPI ebikesManager) {
-        this.userManager = usersManager;
-        this.ridesManager = ridesManager;
-        this.ebikesManager = ebikesManager;
+    public UserGUI(ApplicationAPI app) {
+        this.app = app;
         setupView(); // Set up the view.
     }
 
@@ -61,7 +55,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
         JPanel userSelectionPanel = new JPanel();
 
         userDropdown = new JComboBox<>(); // Dropdown for user selection.
-        this.userManager.getAllUsers()
+        this.app.users().getAllUsers()
             .onSuccess(users -> {
                 availableUsers = users.stream().map(obj -> jsonObjToUser((JsonObject)obj)).collect(Collectors.toList()); 
                 userDropdown.setModel(new DefaultComboBoxModel<String>(availableUsers.stream().map(User::id).collect(Vector<String>::new, Vector::add, Vector::addAll)));
@@ -136,7 +130,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
                 String newUserId = newUserField.getText(); // Get user input.
                 if (!newUserId.isEmpty()) {
                     // Attempt to create a new user.
-                    this.userManager.createUser(newUserId)
+                    this.app.users().createUser(newUserId)
                         .onSuccess(user -> {
                             var newUser = jsonObjToUser(user);
                             this.availableUsers.add(newUser);
@@ -160,23 +154,23 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
             this.selectedUser = this.availableUsers.get(userDropdown.getSelectedIndex());
             userCreditLabel.setText("Credit: " + this.selectedUser.credit());
 
-            this.userManager.subscribeToUserEvents(this.selectedUser.id(), this);
+            this.app.users().subscribeToUserEvents(this.selectedUser.id(), this);
 
             cardLayout.show(mainPanel, "RidePanel"); // Switch to ride panel.
             this.pack(); // Adjust size after login.
         } else if (e.getSource() == creditRechargeButton) {
-            this.userManager.rechargeCredit(selectedUser.id(), Integer.parseInt(creditRechargeTextField.getText()))
+            this.app.users().rechargeCredit(selectedUser.id(), Integer.parseInt(creditRechargeTextField.getText()))
                 .onFailure(ex -> {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
                 });
         } else if (e.getSource() == startRideButton) {
             JDialog d;
             // Opens the ride dialog to start a ride.
-            d = new RideDialog(this, this.selectedUser.id(), this.ebikesManager, this.ridesManager);
+            d = new RideDialog(this, this.selectedUser.id(), this.app);
             d.setVisible(true);
         } else if (e.getSource() == endRideButton) {
             // Ends the current ride.
-            this.ridesManager.stopRide(launchedRide.rideId(), launchedRide.userId())
+            this.app.rides().stopRide(launchedRide.rideId(), launchedRide.userId())
                 .onFailure(ex -> {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
                 });
@@ -189,7 +183,7 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
         this.startRideButton.setEnabled(false); // Disable start button.
         this.endRideButton.setEnabled(true); // Enable end button.
 
-        this.ridesManager.subscribeToRideEvents(this.launchedRide.rideId(), this);
+        this.app.rides().subscribeToRideEvents(this.launchedRide.rideId(), this);
         System.out.println("Ride started.");
     }
 
@@ -216,6 +210,6 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
         this.startRideButton.setEnabled(true);
         this.endRideButton.setEnabled(false);
 
-        this.ridesManager.unsubscribeFromRideEvents();
+        this.app.rides().unsubscribeFromRideEvents();
     }
 }

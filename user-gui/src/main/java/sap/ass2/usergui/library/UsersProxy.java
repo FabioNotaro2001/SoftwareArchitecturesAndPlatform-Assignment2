@@ -13,12 +13,12 @@ import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class UsersManagerProxy implements UsersManagerRemoteAPI {
+public class UsersProxy implements UsersAPI {
     private HttpClient client;
 	private Vertx vertx;
 	private URL usersManagerAddress;
 	
-	public UsersManagerProxy(URL usersManagerAddress) {
+	public UsersProxy(URL usersManagerAddress) {
 		if (Vertx.currentContext() != null) {
 			vertx = Vertx.currentContext().owner();
 		} else {

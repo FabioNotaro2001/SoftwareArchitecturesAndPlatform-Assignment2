@@ -4,8 +4,7 @@ import javax.swing.*;
 
 import io.vertx.core.json.JsonObject;
 import sap.ass2.usergui.domain.Ride;
-import sap.ass2.usergui.library.EbikesManagerRemoteAPI;
-import sap.ass2.usergui.library.RidesManagerRemoteAPI;
+import sap.ass2.usergui.library.ApplicationAPI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,24 +20,22 @@ public class RideDialog extends JDialog {
     private JButton startButton;                    // Button to start the ride.
     private JButton cancelButton;                   // Button to cancel the dialog.
     private UserGUI fatherUserGUI;                  // Reference to the parent UserGUI.
-    private EbikesManagerRemoteAPI ebikesManager;   // Service for ebike operations.
-    private RidesManagerRemoteAPI ridesManager;     // Service for ride operations.
+    private ApplicationAPI app;
     
     private String userRiding;                      // User ID of the rider.
     private List<String> availableBikes;            // List of available bike IDs.
     private String bikeSelectedID;                  // Selected bike ID.
 
-    public RideDialog(UserGUI fatherUserGUI, String user, EbikesManagerRemoteAPI ebikesManager, RidesManagerRemoteAPI ridesManager) {
+    public RideDialog(UserGUI fatherUserGUI, String user, ApplicationAPI app) {
         super(fatherUserGUI, "Start Riding an EBike", true);
-        this.ebikesManager = ebikesManager;
-        this.ridesManager = ridesManager;
+        this.app = app;
 
         this.fatherUserGUI = fatherUserGUI; // Set parent GUI.
         this.userRiding = user;             // Set user ID of the rider.
         
         // Get available bikes and map to bike IDs.
         // this.availableBikes = this.userService.getAvailableBikes().stream().map(b -> b.bikeID()).toList();
-        this.ebikesManager.getAllAvailableEbikesIDs()
+        this.app.ebikes().getAllAvailableEbikesIDs()
             .onSuccess(ebikeIds -> {
                 this.availableBikes = ebikeIds.stream().map(Object::toString).collect(Collectors.toList());
             
@@ -88,7 +85,7 @@ public class RideDialog extends JDialog {
                 cancelButton.setEnabled(false); // Disable cancel button.
 
                 // Starts the ride.
-                ridesManager.beginRide(userRiding, bikeSelectedID)
+                app.rides().beginRide(userRiding, bikeSelectedID)
                     .onSuccess(rideObj -> {
                         // Sets the launched ride in the parent GUI.
                         fatherUserGUI.setLaunchedRide(jsonObjToRide(rideObj));
