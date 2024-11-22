@@ -28,7 +28,3 @@ public class ApiGatewayApplication {
 			.build();
 	}
 }
-
-// TODO: sostituire url a microservizi specifici con quello del gateway (porta 10000)
-
-// TODO: verifica che gli eventi funzionano ancora normalmente dopo il cambio di path
