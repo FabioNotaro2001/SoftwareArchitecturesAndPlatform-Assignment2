@@ -1,0 +1,66 @@
+name: ebikeapp
+
+services:
+  apigateway:
+    image: apigateway
+    container_name: my-apigateway
+    networks:
+      - ebikapp_network
+    ports:
+      - "10000:10000"
+    expose: 
+      - 10000
+
+  registry:
+    image: registry
+    container_name: registry-01
+    networks:
+      - ebikapp_network
+    ports:
+      - "9000:9000"
+    expose: 
+      - 9000
+    healthcheck:
+      test: curl --fail http://registry:9000/health || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+
+  users:
+    image: users
+    container_name: my-users
+    networks:
+      - ebikapp_network
+    ports:
+      - "9100:9100"
+    expose: 
+      - 9100
+
+  ebikes:
+    image: ebikes
+    container_name: my-ebikes
+    networks:
+      - ebikapp_network
+    ports:
+      - "9200:9200"
+    expose: 
+      - 9200
+
+  rides:
+    image: rides
+    container_name: my-rides
+    # depends_on:
+    #   registry:
+    #     condition: service_healthy
+    networks:
+      - ebikapp_network
+    ports:
+      - "9300:9300"
+    expose: 
+      - 9300
+
+
+networks:
+  ebikapp_network:

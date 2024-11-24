@@ -20,20 +20,19 @@ public class ApiGatewayApplication {
 			.route("REGISTRY_ROUTE", r -> r.path("/api/registry/**")
 				.filters(f -> f.circuitBreaker(c -> c.setName("registryCircuitBreaker")
 													.setFallbackUri("forward:/fallback/registry")))
-				.uri("http://localhost:9000"))
+				.uri("http://registry:9000"))  // Nome del container per Registry
 			.route("USERS_MANAGER_ROUTE", r -> r.path("/api/users/**")
 				.filters(f -> f.circuitBreaker(c -> c.setName("usersCircuitBreaker")
 													.setFallbackUri("forward:/fallback/users")))
-				.uri("http://localhost:9100"))
+				.uri("http://users:9100"))    // Nome del container per Users
 			.route("EBIKES_MANAGER_ROUTE", r -> r.path("/api/ebikes/**")
 				.filters(f -> f.circuitBreaker(c -> c.setName("ebikesCircuitBreaker")
 													.setFallbackUri("forward:/fallback/ebikes")))
-				.uri("http://localhost:9200"))
+				.uri("http://ebikes:9200"))   // Nome del container per Ebikes
 			.route("RIDES_MANAGER_ROUTE", r -> r.path("/api/rides/**")
 				.filters(f -> f.circuitBreaker(c -> c.setName("ridesCircuitBreaker")
 													.setFallbackUri("forward:/fallback/rides")))
-				.uri("http://localhost:9300"))
+				.uri("http://rides:9300"))    // Nome del container per Rides
 			.build();
 	}
-
 }
