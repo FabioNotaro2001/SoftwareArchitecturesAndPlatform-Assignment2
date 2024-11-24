@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
 import sap.ass2.ebikes.application.RegistryProxy;
 import sap.ass2.ebikes.application.RegistryRemoteAPI;
 import sap.ass2.ebikes.domain.RepositoryException;
