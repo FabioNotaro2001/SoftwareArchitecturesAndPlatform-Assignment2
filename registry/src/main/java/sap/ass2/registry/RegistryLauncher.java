@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class RegistryLauncher {
-    private static final String SERVICE_ADDRESS = "http://localhost:9000";
+    private static final String SERVICE_ADDRESS = "http://registry:9000";
 
     public static void main(String[] args) throws MalformedURLException, URISyntaxException {
         URL localAddress = URI.create(SERVICE_ADDRESS).toURL();

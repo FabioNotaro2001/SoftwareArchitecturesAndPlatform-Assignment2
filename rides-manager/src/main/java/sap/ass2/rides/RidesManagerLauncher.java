@@ -17,12 +17,12 @@ import sap.ass2.rides.application.UsersManagerRemoteAPI;
 
 public class RidesManagerLauncher {
     private static final String RIDES_MANAGER_NAME = "rides-manager";
-    private static final String SERVICE_ADDRESS = "http://localhost:9300";
+    private static final String SERVICE_ADDRESS = "http://rides:9300";
 
     public static void main(String[] args) throws MalformedURLException, URISyntaxException {
         URL localAddress = URI.create(SERVICE_ADDRESS).toURL();
 
-        RegistryRemoteAPI registry = new RegistryProxy(URI.create("http://localhost:9000").toURL());
+        RegistryRemoteAPI registry = new RegistryProxy(URI.create("http://registry:9000").toURL());
         
         var usersFut = registry.lookupUsersManager("users-manager");
         var ebikesFut = registry.lookupEbikesManager("ebikes-manager");

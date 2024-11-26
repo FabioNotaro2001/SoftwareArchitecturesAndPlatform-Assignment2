@@ -31,6 +31,8 @@ services:
   users:
     image: users
     container_name: my-users
+    depends_on:
+      - registry
     networks:
       - ebikapp_network
     ports:
@@ -41,6 +43,8 @@ services:
   ebikes:
     image: ebikes
     container_name: my-ebikes
+    depends_on:
+      - registry
     networks:
       - ebikapp_network
     ports:
@@ -51,15 +55,28 @@ services:
   rides:
     image: rides
     container_name: my-rides
-    # depends_on:
-    #   registry:
-    #     condition: service_healthy
+    depends_on:
+      - registry
+      - users
+      - ebikes
     networks:
       - ebikapp_network
     ports:
       - "9300:9300"
     expose: 
       - 9300
+
+  # testrunner:
+  #   image: testrunner
+  #   container_name: my-test-runner
+  #   depends_on:
+  #     - apigateway
+  #     - registry
+  #     - users
+  #     - ebikes
+  #     - rides
+  #   networks:
+  #     - ebikapp_network
 
 
 networks:
