@@ -62,6 +62,17 @@
 			<artifactId>spring-cloud-starter-gateway</artifactId>
 			<version>4.1.5</version>
 		</dependency>
+		<dependency>
+		<groupId>io.micrometer</groupId>
+		<artifactId>micrometer-registry-prometheus</artifactId>
+		<version>1.10.0</version> 
+		</dependency>
+		<dependency>
+   	 	<groupId>org.springframework.boot</groupId>
+    	<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
