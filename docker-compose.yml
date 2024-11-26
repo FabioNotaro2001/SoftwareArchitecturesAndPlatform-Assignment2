@@ -1,17 +1,10 @@
 name: ebikeapp
 
 services:
-  apigateway:
-    image: apigateway
-    container_name: my-apigateway
-    networks:
-      - ebikapp_network
-    ports:
-      - "10000:10000"
-    expose: 
-      - 10000
-
   registry:
+    build:
+      context: ./registry
+      dockerfile: docker-maven/Dockerfile
     image: registry
     container_name: registry-01
     networks:
@@ -22,13 +15,14 @@ services:
       - 9000
     healthcheck:
       test: curl --fail http://registry:9000/health || exit 1
-      interval: 1m30s
+      interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-      start_interval: 5s
 
   users:
+    build:
+      context: ./users-manager
+      dockerfile: docker-maven/Dockerfile
     image: users
     container_name: my-users
     depends_on:
@@ -39,8 +33,16 @@ services:
       - "9100:9100"
     expose: 
       - 9100
+    healthcheck:
+      test: curl --fail http://users:9100/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   ebikes:
+    build:
+      context: ./ebikes-manager
+      dockerfile: docker-maven/Dockerfile
     image: ebikes
     container_name: my-ebikes
     depends_on:
@@ -51,11 +53,38 @@ services:
       - "9200:9200"
     expose: 
       - 9200
+    healthcheck:
+      test: curl --fail http://ebikes:9200/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: docker-maven/Dockerfile
+    image: apigateway
+    container_name: my-apigateway
+    networks:
+      - ebikapp_network
+    ports:
+      - "10000:10000"
+    expose: 
+      - 10000
+    healthcheck:
+      test: curl --fail http://apigateway:10000/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   rides:
+    build:
+      context: ./rides-manager
+      dockerfile: docker-maven/Dockerfile
     image: rides
     container_name: my-rides
     depends_on:
+      - apigateway
       - registry
       - users
       - ebikes
@@ -65,19 +94,26 @@ services:
       - "9300:9300"
     expose: 
       - 9300
+    healthcheck:
+      test: curl --fail http://rides:9300/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # testrunner:
-  #   image: testrunner
-  #   container_name: my-test-runner
-  #   depends_on:
-  #     - apigateway
-  #     - registry
-  #     - users
-  #     - ebikes
-  #     - rides
-  #   networks:
-  #     - ebikapp_network
-
+  testrunner:
+    build:
+      context: ./end2end-test
+      dockerfile: docker-maven/Dockerfile
+    image: testrunner
+    container_name: my-test-runner
+    depends_on:
+      - apigateway
+      - registry
+      - users
+      - ebikes
+      - rides
+    networks:
+      - ebikapp_network
 
 networks:
   ebikapp_network:
