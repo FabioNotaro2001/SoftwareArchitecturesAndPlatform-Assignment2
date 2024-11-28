@@ -122,7 +122,6 @@ public class RidesProxy implements RidesAPI {
 
                         observer.rideEnded(rideId, reason);
                     }
-					// The "ride-start" event can never happen.
                 });
             } else {
                 p.fail(res.cause());

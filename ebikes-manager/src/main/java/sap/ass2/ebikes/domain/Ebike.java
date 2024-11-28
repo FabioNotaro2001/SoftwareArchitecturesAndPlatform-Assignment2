@@ -1,23 +1,22 @@
-package sap.ass2.ebikes.domain; // Package declaration for the business logic layer.
+package sap.ass2.ebikes.domain; 
 
 public class Ebike  {	
-    private String id; // The unique identifier for the electric bike.
+    private String id; 
     
-    // Enum representing the possible states of an electric bike.
+    
     public enum EbikeState { 
-        AVAILABLE,      // The bike is available for use.
-        IN_USE,        // The bike is currently being used.
-        MAINTENANCE,   // The bike is under maintenance.
-        DISMISSED      // The bike is no longer in use and is dismissed.
+        AVAILABLE,      
+        IN_USE,        
+        MAINTENANCE,   
+        DISMISSED      
     }
     
-    private EbikeState state; // The current state of the electric bike.
-    private P2d loc;          // The current location of the bike represented as a 2D point.
-    private V2d direction;    // The current direction the bike is facing represented as a 2D vector.
-    private double speed;      // The current speed of the bike.
-    private int batteryLevel;  // The battery level of the bike, represented as a percentage (0 to 100).
+    private EbikeState state; 
+    private P2d loc;          
+    private V2d direction;    
+    private double speed;      
+    private int batteryLevel;  
     
-    // Constructor for creating an EBike with a unique ID, initialized to available state and default location.
     public Ebike(String id) {
         this.id = id;
         this.state = EbikeState.AVAILABLE; 
@@ -27,7 +26,6 @@ public class Ebike  {
         batteryLevel = 100;
     }
     
-    // Constructor for creating an EBike with a unique ID and specified position, initialized to available state.
     public Ebike(String id, P2d pos) {
         this.id = id;
         this.state = EbikeState.AVAILABLE; 
@@ -37,7 +35,6 @@ public class Ebike  {
         batteryLevel = 100;
     }
 
-    // Constructor for creating an EBike with full specifications including ID, state, location, direction, speed, and battery level.
     public Ebike(String id, EbikeState eState, P2d loc, V2d direction, double speed, int batteryLevel) {
         this.id = id; 
         this.state = eState; 
@@ -47,23 +44,19 @@ public class Ebike  {
         this.batteryLevel = batteryLevel; 
     }
     
-    // Returns the unique identifier of the bike.
     public String getId() {
         return id; 
     }
 
-    // Returns the current state of the bike.
     public EbikeState getState() {
         return state; 
     }
     
-    // Recharges the bike's battery to 100% and sets its state to available.
     public void rechargeBattery() {
         batteryLevel = 100; 
         state = EbikeState.AVAILABLE;
     }
     
-    // Returns the current battery level of the bike.
     public int getBatteryLevel() {
         return batteryLevel; 
     }
@@ -78,7 +71,6 @@ public class Ebike  {
         }
     }
 
-    // Decreases the battery level by the specified amount and updates the state if it drops below zero.
     public void decreaseBatteryLevel(int delta) {
         batteryLevel -= delta; 
         if (batteryLevel < 0) {
@@ -87,52 +79,42 @@ public class Ebike  {
         }
     }
     
-    // Checks if the bike is currently available.
     public boolean isAvailable() {
         return state == EbikeState.AVAILABLE; 
     }
 
-    // Checks if the bike is currently in use.
     public boolean isInUse() {
         return state == EbikeState.IN_USE; 
     }
 
-    // Updates the bike's state to the provided state.
     public void updateState(EbikeState state) {
         this.state = state; 
     }
     
-    // Updates the bike's location to the provided new location.
     public void updateLocation(P2d newLoc) {
         loc = newLoc; 
     }
 
-    // Updates the bike's speed to the specified value.
     public void updateSpeed(double speed) {
         this.speed = speed; 
     }
     
-    // Updates the bike's direction to the specified value.
     public void updateDirection(V2d dir) {
         this.direction = dir; 
     }
     
-    // Returns the current speed of the bike.
     public double getSpeed() {
         return speed; 
     }
     
-    // Returns the current direction of the bike.
     public V2d getDirection() {
         return direction; 
     }
     
-    // Returns the current location of the bike.
     public P2d getLocation(){
         return loc; 
     }
     
-    // Returns a string representation of the bike's current state.
     public String toString() {
         return "{ id: " + id + ", loc: " + loc + ", batteryLevel: " + batteryLevel + ", state: " + state + " }"; 
     }

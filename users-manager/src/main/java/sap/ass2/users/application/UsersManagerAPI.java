@@ -7,48 +7,15 @@ import sap.ass2.users.domain.RepositoryException;
 import sap.ass2.users.domain.UserEventObserver;
 
 public interface UsersManagerAPI {
-    /**
-     * Retrieves all users.
-     * @return a list of users
-     */
     JsonArray getAllUsers();
 
-    /**
-     * Creates a new user.
-     * @param userID the user ID
-     * @return the JSON object that represents the new user
-     * @throws RepositoryException 
-     */
     JsonObject createUser(String userID) throws RepositoryException;
 
-    /**
-     * Retrieves a user by its ID.
-     * @param userID the user ID
-     * @return the JSON object that represents the user if it exists
-     */
     Optional<JsonObject> getUserByID(String userID);
 
-    /**
-     * Recharges a user's credit.
-     * @param userID the user ID
-     * @param credit the amount of credit to add
-     * @throws IllegalArgumentException 
-     * @throws RepositoryException 
-     */
     void rechargeCredit(String userID, int credit) throws RepositoryException, IllegalArgumentException;
 
-    /**
-     * Decreases a user's credit.
-     * @param userID the user ID
-     * @param amount the amount of credit to subtract
-     * @throws RepositoryException 
-     */
     void decreaseCredit(String userID, int amount) throws RepositoryException;
 
-    /**
-     * Subscribes an observer for all user events.
-     * @param observer the observer
-     */
     void subscribeToUserEvents(UserEventObserver observer);
-
 }

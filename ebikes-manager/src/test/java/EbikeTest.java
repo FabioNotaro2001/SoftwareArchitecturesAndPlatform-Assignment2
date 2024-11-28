@@ -6,7 +6,6 @@ import sap.ass2.ebikes.domain.P2d;
 import sap.ass2.ebikes.domain.V2d;
 
 public class EbikeTest {
-
     private Ebike ebike;
 
     @BeforeEach
@@ -45,10 +44,10 @@ public class EbikeTest {
         assertEquals(0, ebike.getBatteryLevel());
         assertEquals(Ebike.EbikeState.MAINTENANCE, ebike.getState());
 
-        ebike.setBatteryLevel(150); // Test upper limit
+        ebike.setBatteryLevel(150); 
         assertEquals(100, ebike.getBatteryLevel());
 
-        ebike.setBatteryLevel(-10); // Test lower limit
+        ebike.setBatteryLevel(-10); 
         assertEquals(0, ebike.getBatteryLevel());
     }
 

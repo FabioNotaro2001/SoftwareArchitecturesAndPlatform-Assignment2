@@ -6,45 +6,6 @@ spring:
     name: API-GATEWAY
 
   cloud:
-    gateway:
-      routes:
-        - id: REGISTRY_ROUTE
-          uri: http://localhost:9000
-          predicates:
-            - Path=/api/registry/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: registryCircuitBreaker
-                fallbackUri: forward:/fallback/registry
-        - id: USERS_MANAGER_ROUTE
-          uri: http://localhost:9100
-          predicates:
-            - Path=/api/users/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: usersCircuitBreaker
-                fallbackUri: forward:/fallback/users
-        - id: EBIKES_MANAGER_ROUTE
-          uri: http://localhost:9200
-          predicates:
-            - Path=/api/ebikes/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: ebikesCircuitBreaker
-                fallbackUri: forward:/fallback/ebikes
-        - id: RIDES_MANAGER_ROUTE
-          uri: http://localhost:9300
-          predicates:
-            - Path=/api/rides/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: ridesCircuitBreaker
-                fallbackUri: forward:/fallback/rides
-
     circuitbreaker:
       resilience4j:
         enabled: true
@@ -61,5 +22,3 @@ management:
   endpoint:
     prometheus:
       enabled: true
-
-

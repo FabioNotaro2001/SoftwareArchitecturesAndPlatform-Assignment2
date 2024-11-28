@@ -85,7 +85,6 @@ public class EbikesProxy implements EbikesAPI {
                         
                         observer.bikeUpdated(ebikeID, EbikeState.valueOf(state), locX, locY, dirX, dirY, speed, batteryLevel);
                     }
-					// Events for ebike removal are ignored.
                 });
             } else {
                 p.fail(res.cause());

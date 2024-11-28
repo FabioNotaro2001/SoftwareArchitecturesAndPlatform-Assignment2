@@ -54,27 +54,27 @@ public class UsersManagerImpl implements UsersManagerAPI {
 
     @Override
     public void rechargeCredit(String userID, int credit) throws RepositoryException, IllegalArgumentException {
-        var userOpt = this.users.stream().filter(u -> u.getId().equals(userID)).findFirst(); // Find user.
+        var userOpt = this.users.stream().filter(u -> u.getId().equals(userID)).findFirst();
         if (userOpt.isEmpty()) {
             throw new IllegalArgumentException("Invalid user id");
         }
 
-        var user = userOpt.get(); // Get user.
-        user.rechargeCredit(credit); // Recharge user credits.
-        this.userRepository.saveUser(user); // Persist user changes.
+        var user = userOpt.get(); 
+        user.rechargeCredit(credit); 
+        this.userRepository.saveUser(user); 
         this.notifyObservers(user); 
     }
 
     @Override
     public void decreaseCredit(String userID, int amount) throws RepositoryException {
-        var userOpt = this.users.stream().filter(u -> u.getId().equals(userID)).findFirst(); // Find user.
+        var userOpt = this.users.stream().filter(u -> u.getId().equals(userID)).findFirst(); 
         if (userOpt.isEmpty()) {
             throw new IllegalArgumentException("Invalid user id");
         }
 
-        var user = userOpt.get(); // Get user.
-        user.decreaseCredit(amount); // Decrease user credits.
-        this.userRepository.saveUser(user); // Persist user changes.
+        var user = userOpt.get(); 
+        user.decreaseCredit(amount); 
+        this.userRepository.saveUser(user); 
         this.notifyObservers(user); 
     }
 

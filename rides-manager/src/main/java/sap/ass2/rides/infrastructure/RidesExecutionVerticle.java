@@ -98,9 +98,6 @@ public class RidesExecutionVerticle extends AbstractVerticle {
                 obj.getInteger("batteryLevel"));
     }
 
-    /**
-     * Starts the cycle of step events when a new ride is added (if there was none before).
-     */
     private void beginLoopOfEventsIfNecessary() {
         if (this.doLoop) {
             return;

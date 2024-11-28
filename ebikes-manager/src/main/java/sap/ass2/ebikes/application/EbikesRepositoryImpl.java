@@ -19,33 +19,27 @@ import sap.ass2.ebikes.domain.V2d;
 
 public class EbikesRepositoryImpl implements EbikesRepository {
 
-    private String dbaseFolder;            // Base folder for storing database files.
+    private String dbaseFolder;            
 
     public EbikesRepositoryImpl() {
-        this.dbaseFolder =  "./database";  // Default path for the database folder.
-        makeDir(dbaseFolder);  // Create the base folder if not exists.
+        this.dbaseFolder =  "./database";  
+        makeDir(dbaseFolder);  
     }
 
     private void saveObj(String id, JsonObject obj) throws RepositoryException {
 		try {
-			// Open a file for writing (create a new one if it doesn't exist).
 			FileWriter fw = new FileWriter(Path.of(dbaseFolder, id + ".json").toString());
 			java.io.BufferedWriter wr = new BufferedWriter(fw);	
 		
-			// Write the JsonObject as a file.
 			wr.write(obj.encodePrettily());
 			wr.flush();
 			fw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			throw new RepositoryException();  // Custom exception for repository errors.
+			throw new RepositoryException(); 
 		}
 	}
-	
-	/**
-	 * Creates a directory if it does not already exist.
-	 * @param name Name (path) of the directory to create.
-	 */
+
 	private void makeDir(String name) {
 		try {
 			File dir = new File(name);
@@ -59,7 +53,6 @@ public class EbikesRepositoryImpl implements EbikesRepository {
 
     @Override
     public void saveEbike(Ebike eBike) throws RepositoryException {
-        // Create a JsonObject representing the eBike's data.
 		JsonObject obj = new JsonObject();
 		obj.put("ID", eBike.getId());
 		obj.put("STATE", eBike.getState().toString());
@@ -70,27 +63,23 @@ public class EbikesRepositoryImpl implements EbikesRepository {
 		obj.put("SPEED", eBike.getSpeed());
 		obj.put("BATTERY", eBike.getBatteryLevel());
 
-		// Save the JsonObject to a file under the eBike path.
 		this.saveObj(eBike.getId(), obj);
     }
 
     @Override
     public List<Ebike> getEbikes() throws RepositoryException {
         List<Ebike> ebikes = new ArrayList<>();
-		File ebikeDir = new File(dbaseFolder);  // eBike data directory.
+		File ebikeDir = new File(dbaseFolder);  
 		
-		// Check if the directory exists and contains files.
 		if (ebikeDir.exists() && ebikeDir.isDirectory()) {
-			File[] ebikeFiles = ebikeDir.listFiles((dir, name) -> name.endsWith(".json"));  // Filter .json files.
+			File[] ebikeFiles = ebikeDir.listFiles((dir, name) -> name.endsWith(".json"));  
 			
 			if (ebikeFiles != null) {
 				for (File ebikeFile : ebikeFiles) {
 					try {
-						// Read file content and convert it to JsonObject.
 						String content = new String(Files.readAllBytes(ebikeFile.toPath()));
 						JsonObject obj = new JsonObject(content);
 						
-						// Create an EBike object from the JsonObject.
 						Ebike ebike = new Ebike(
 							obj.getString("ID"),
 							EbikeState.valueOf(obj.getString("STATE")),
@@ -101,28 +90,25 @@ public class EbikesRepositoryImpl implements EbikesRepository {
 						);
 						ebikes.add(ebike);
 					} catch (IOException e) {
-						throw new RepositoryException();  // Handle file read error.
+						throw new RepositoryException(); 
 					}
 				}
 			}
 		}
-		return ebikes;  // Return the list of eBikes.
+		return ebikes;  
     }
 
     @Override
     public Optional<Ebike> getEbikeByID(String id) throws RepositoryException {
         File ebikeFile = new File(Path.of(dbaseFolder, id + ".json").toString());
 
-		// Check if the file exists.
 		if (!ebikeFile.exists()) {
 			return Optional.empty();
 		} else {
 			try {
-				// Read file content and convert to JsonObject.
 				String content = new String(Files.readAllBytes(ebikeFile.toPath()));
 				JsonObject obj = new JsonObject(content);
 
-				// Return an EBike object wrapped in an Optional.
 				return Optional.of(new Ebike(
 					obj.getString("ID"),
 					EbikeState.valueOf(obj.getString("STATE")),
@@ -132,7 +118,7 @@ public class EbikesRepositoryImpl implements EbikesRepository {
 					obj.getInteger("BATTERY")
 				));
 			} catch (IOException e) {
-				throw new RepositoryException();  // Handle file read error.
+				throw new RepositoryException();  
 			}
 		}
     }

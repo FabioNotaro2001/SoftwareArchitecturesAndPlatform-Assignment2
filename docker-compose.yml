@@ -18,6 +18,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    environment:
+      - REGISTRY_URL=http://registry:9000
 
   users:
     build:
@@ -38,6 +40,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    environment:
+      - REGISTRY_URL=http://registry:9000
+      - USERS_URL=http://users:9100
 
   ebikes:
     build:
@@ -58,6 +63,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    environment:
+      - REGISTRY_URL=http://registry:9000
+      - EBIKES_URL=http://ebikes:9200
 
   apigateway:
     build:
@@ -76,6 +84,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    environment:
+      - REGISTRY_URL=http://registry:9000
+      - USERS_URL=http://users:9100
+      - EBIKES_URL=http://ebikes:9200
+      - APIGATEWAY_URL=http://apigateway:10000
+      - RIDES_URL=http://rides:9300
 
   rides:
     build:
@@ -99,6 +113,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    environment:
+      - REGISTRY_URL=http://registry:9000
+      - USERS_URL=http://users:9100
+      - EBIKES_URL=http://ebikes:9200
+      - RIDES_URL=http://rides:9300
 
   testrunner:
     build:
@@ -114,6 +133,12 @@ services:
       - rides
     networks:
       - ebikapp_network
+    environment:
+      - REGISTRY_URL=http://registry:9000
+      - USERS_URL=http://users:9100
+      - EBIKES_URL=http://ebikes:9200
+      - APIGATEWAY_URL=http://apigateway:10000
+      - RIDES_URL=http://rides:9300
 
 networks:
   ebikapp_network:

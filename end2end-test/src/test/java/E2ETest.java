@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 public class E2ETest {
     @BeforeAll
     public static void setup() {
-        RestAssured.baseURI = "http://apigateway:10000";  // Usa la variabile d'ambiente per il gateway
+        String apiGatewayUrl = System.getenv("APIGATEWAY_URL");
+        RestAssured.baseURI = apiGatewayUrl;  // Usa la variabile d'ambiente per il gateway
     }
 
     @Test

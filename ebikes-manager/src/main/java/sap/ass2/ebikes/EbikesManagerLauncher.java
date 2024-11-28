@@ -10,14 +10,15 @@ import sap.ass2.ebikes.domain.RepositoryException;
 
 public class EbikesManagerLauncher {
     private static final String EBIKES_MANAGER_NAME = "ebikes-manager";
-    private static final String SERVICE_ADDRESS = "http://ebikes:9200";
+    private static final String SERVICE_ADDRESS = System.getenv("EBIKES_URL");
+    private static final String REGISTRY_ADDRESS = System.getenv("REGISTRY_URL");
 
     public static void main(String[] args) throws MalformedURLException, URISyntaxException, RepositoryException{
         URL localAddress = URI.create(SERVICE_ADDRESS).toURL();
         EbikesManagerService service = new EbikesManagerService(localAddress);
         service.launch();
 
-        RegistryRemoteAPI registry = new RegistryProxy(URI.create("http://registry:9000").toURL());
+        RegistryRemoteAPI registry = new RegistryProxy(URI.create(REGISTRY_ADDRESS).toURL());
         registry.registerEbikesManager(EBIKES_MANAGER_NAME, localAddress);
     }
 }

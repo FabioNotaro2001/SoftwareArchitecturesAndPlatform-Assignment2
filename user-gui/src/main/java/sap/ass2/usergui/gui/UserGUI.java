@@ -17,26 +17,25 @@ import sap.ass2.usergui.library.ApplicationAPI;
 import sap.ass2.usergui.library.RideEventObserver;
 import sap.ass2.usergui.library.UserEventObserver;
 
-
 public class UserGUI extends JFrame implements ActionListener, UserEventObserver, RideEventObserver {
-    private JButton startRideButton;                // Button to start a ride.
-    private JButton endRideButton;                  // Button to end a ride.
-    private JLabel userCreditLabel;                 // Label to display user credits.
-    private JTextField creditRechargeTextField;     // Input field for credit recharge.
-    private JButton creditRechargeButton;           // Button to recharge credits.
-    private JButton loginButton;                    // Button for user login.
-    private JButton registerUserButton;             // Button to register a new user.
-    private JComboBox<String> userDropdown;         // Dropdown for selecting users.
-    private JPanel mainPanel;                       // Main panel to hold different views.
-    private CardLayout cardLayout;                  // Layout manager for switching views.
-    private User selectedUser;                      // Currently selected user.
-    private Ride launchedRide;                      // Information about the current ride.
+    private JButton startRideButton;                
+    private JButton endRideButton;                  
+    private JLabel userCreditLabel;                 
+    private JTextField creditRechargeTextField;     
+    private JButton creditRechargeButton;          
+    private JButton loginButton;                    
+    private JButton registerUserButton;             
+    private JComboBox<String> userDropdown;         
+    private JPanel mainPanel;                       
+    private CardLayout cardLayout;                  
+    private User selectedUser;                      
+    private Ride launchedRide;                      
     private ApplicationAPI app;
     private List<User> availableUsers;
 
     public UserGUI(ApplicationAPI app) {
         this.app = app;
-        setupView(); // Set up the view.
+        setupView(); 
     }
 
     private static User jsonObjToUser(JsonObject obj){
@@ -45,16 +44,15 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
 
     protected void setupView() {
         setTitle("USER GUI");        
-        setSize(800, 300); // Set the size of the GUI.
-        setResizable(false); // Disable resizing of the window.
-        setLayout(new BorderLayout()); // Use BorderLayout for the main layout.
-        cardLayout = new CardLayout(); // Initialize CardLayout for switching panels.
-        mainPanel = new JPanel(cardLayout); // Create the main panel with CardLayout.
+        setSize(800, 300); 
+        setResizable(false); 
+        setLayout(new BorderLayout()); 
+        cardLayout = new CardLayout(); 
+        mainPanel = new JPanel(cardLayout); 
 
-        // Panel for user selection (login/registration).
         JPanel userSelectionPanel = new JPanel();
 
-        userDropdown = new JComboBox<>(); // Dropdown for user selection.
+        userDropdown = new JComboBox<>();
         this.app.users().getAllUsers()
             .onSuccess(users -> {
                 availableUsers = users.stream().map(obj -> jsonObjToUser((JsonObject)obj)).collect(Collectors.toList()); 
@@ -64,77 +62,72 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             });
         
-        loginButton = new JButton("LOGIN");             // Login button.
-        registerUserButton = new JButton("NEW USER");   // Register button.
-        loginButton.addActionListener(this);            // Add action listener for login.
-        registerUserButton.addActionListener(this);     // Add action listener for registration.
-        userSelectionPanel.add(userDropdown);           // Add dropdown to panel.
-        userSelectionPanel.add(loginButton);            // Add login button to panel.
-        userSelectionPanel.add(registerUserButton);     // Add register button to panel.
+        loginButton = new JButton("LOGIN");             
+        registerUserButton = new JButton("NEW USER");   
+        loginButton.addActionListener(this);            
+        registerUserButton.addActionListener(this);     
+        userSelectionPanel.add(userDropdown);           
+        userSelectionPanel.add(loginButton);            
+        userSelectionPanel.add(registerUserButton);     
 
-        // Panel for ride operations.
         JPanel ridePanel = new JPanel();
-        startRideButton = new JButton("Start Ride");    // Button to start ride.
-        startRideButton.addActionListener(this);        // Add action listener for starting ride.
-        endRideButton = new JButton("End Ride");        // Button to end ride.
-        endRideButton.addActionListener(this);          // Add action listener for ending ride.
-        endRideButton.setEnabled(false);                // Initially disable end ride button.
-        creditRechargeButton = new JButton("RECHARGE"); // Button for credit recharge.
-        creditRechargeButton.addActionListener(this);   // Add action listener for recharge.
-        creditRechargeTextField = new JTextField();     // Text field for credit input.
-        creditRechargeTextField.setColumns(2);          // Set width of text field.
-        userCreditLabel = new JLabel("Credit: ");       // Label to show user credits.
-        ridePanel.add(startRideButton);                 // Add start ride button to panel.
-        ridePanel.add(endRideButton);                   // Add end ride button to panel.
-        ridePanel.add(userCreditLabel);                 // Add credit label to panel.
-        ridePanel.add(creditRechargeTextField);         // Add recharge text field to panel.
-        ridePanel.add(creditRechargeButton);            // Add recharge button to panel.
+        startRideButton = new JButton("Start Ride");    
+        startRideButton.addActionListener(this);        
+        endRideButton = new JButton("End Ride");        
+        endRideButton.addActionListener(this);        
+        endRideButton.setEnabled(false);                
+        creditRechargeButton = new JButton("RECHARGE"); 
+        creditRechargeButton.addActionListener(this);   
+        creditRechargeTextField = new JTextField();     
+        creditRechargeTextField.setColumns(2);          
+        userCreditLabel = new JLabel("Credit: ");      
+        ridePanel.add(startRideButton);                 
+        ridePanel.add(endRideButton);                  
+        ridePanel.add(userCreditLabel);                 
+        ridePanel.add(creditRechargeTextField);        
+        ridePanel.add(creditRechargeButton);          
 
-        // Add panels to the main panel.
-        mainPanel.add(userSelectionPanel, "UserSelection"); // Add user selection panel.
-        mainPanel.add(ridePanel, "RidePanel");              // Add ride panel.
+        mainPanel.add(userSelectionPanel, "UserSelection"); 
+        mainPanel.add(ridePanel, "RidePanel");              
 
-        cardLayout.show(mainPanel, "UserSelection");         // Show user selection panel initially.
+        cardLayout.show(mainPanel, "UserSelection");         
 
-        add(mainPanel, BorderLayout.CENTER);                // Add main panel to the frame.
+        add(mainPanel, BorderLayout.CENTER);                
 
-        // Window listener to handle window closing event.
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev) {
-                System.exit(-1);                            // Exit the application on window close.
+                System.exit(-1);                            
             }
         });
 
-        pack(); // Adjust frame size to fit contents.
+        pack(); 
     }
 
     public void display() {
         SwingUtilities.invokeLater(() -> {
-            this.setVisible(true); // Set the GUI visible on the Event Dispatch Thread.
+            this.setVisible(true); 
         });
     }
         
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Handle button actions.
         if (e.getSource() == registerUserButton) {
-            // Open dialog for user registration.
             JDialog registerDialog = new JDialog(this, "CREATE NEW USER", true);
             registerDialog.setSize(300, 150);
             registerDialog.setLayout(new GridLayout(3, 1));
 
-            JTextField newUserField = new JTextField(); // Input field for new user ID.
-            JButton confirmButton = new JButton("REGISTER"); // Confirm button for registration.
+            JTextField newUserField = new JTextField(); 
+            JButton confirmButton = new JButton("REGISTER"); 
 
             confirmButton.addActionListener(ev -> {
-                String newUserId = newUserField.getText(); // Get user input.
+                String newUserId = newUserField.getText(); 
                 if (!newUserId.isEmpty()) {
-                    // Attempt to create a new user.
+                    
                     this.app.users().createUser(newUserId)
                         .onSuccess(user -> {
                             var newUser = jsonObjToUser(user);
                             this.availableUsers.add(newUser);
-                            userDropdown.addItem(newUser.id());     // Add the new user to the dropdown.
+                            userDropdown.addItem(newUser.id());    
                             registerDialog.dispose();
                         })
                         .onFailure(ex -> {
@@ -143,21 +136,19 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
                 }
             });
 
-            // Add components to the registration dialog.
             registerDialog.add(new JLabel("INSERT USER-ID:"));
             registerDialog.add(newUserField);
             registerDialog.add(confirmButton);
 
-            registerDialog.setVisible(true); // Show the registration dialog.
+            registerDialog.setVisible(true); 
         } else if (e.getSource() == loginButton) {
-            // Log in the selected user and update credits display.
             this.selectedUser = this.availableUsers.get(userDropdown.getSelectedIndex());
             userCreditLabel.setText("Credit: " + this.selectedUser.credit());
 
             this.app.users().subscribeToUserEvents(this.selectedUser.id(), this);
 
-            cardLayout.show(mainPanel, "RidePanel"); // Switch to ride panel.
-            this.pack(); // Adjust size after login.
+            cardLayout.show(mainPanel, "RidePanel"); 
+            this.pack(); 
         } else if (e.getSource() == creditRechargeButton) {
             this.app.users().rechargeCredit(selectedUser.id(), Integer.parseInt(creditRechargeTextField.getText()))
                 .onFailure(ex -> {
@@ -165,11 +156,9 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
                 });
         } else if (e.getSource() == startRideButton) {
             JDialog d;
-            // Opens the ride dialog to start a ride.
             d = new RideDialog(this, this.selectedUser.id(), this.app);
             d.setVisible(true);
         } else if (e.getSource() == endRideButton) {
-            // Ends the current ride.
             this.app.rides().stopRide(launchedRide.rideId(), launchedRide.userId())
                 .onFailure(ex -> {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -178,10 +167,9 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     }
 
     public void setLaunchedRide(Ride newRide) {
-        // Set the current ride and update button states.
         this.launchedRide = newRide;
-        this.startRideButton.setEnabled(false); // Disable start button.
-        this.endRideButton.setEnabled(true); // Enable end button.
+        this.startRideButton.setEnabled(false); 
+        this.endRideButton.setEnabled(true); 
 
         this.app.rides().subscribeToRideEvents(this.launchedRide.rideId(), this);
         System.out.println("Ride started.");
@@ -190,7 +178,6 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     @Override
     public void userUpdated(String userID, int credit) {
         this.selectedUser = this.selectedUser.updateCredit(credit);
-        // Technically the list should also be updated but we have no logout so it doesn't matter.
         this.userCreditLabel.setText("Credits: " + credit);
         this.pack();
     }
@@ -204,9 +191,8 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     public void rideEnded(String rideID, String reason) {
         System.out.println("Ride ended.");
         JOptionPane.showMessageDialog(this, reason, "Info", JOptionPane.INFORMATION_MESSAGE);
-        this.launchedRide = null; // Reset launched ride.
+        this.launchedRide = null; 
                 
-        // Enable start ride button and disable end ride button.
         this.startRideButton.setEnabled(true);
         this.endRideButton.setEnabled(false);
 

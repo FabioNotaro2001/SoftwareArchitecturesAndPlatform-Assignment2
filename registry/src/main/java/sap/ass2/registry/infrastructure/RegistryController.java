@@ -1,8 +1,6 @@
 package sap.ass2.registry.infrastructure;
 
 import java.util.logging.Logger;
-
-
 import io.vertx.core.Vertx;
 import sap.ass2.registry.domain.RegistryAPI;
 

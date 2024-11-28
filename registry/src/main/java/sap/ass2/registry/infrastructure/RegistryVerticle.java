@@ -24,8 +24,6 @@ public class RegistryVerticle extends AbstractVerticle {
         this.registryAPI = registryAPI;
     }
 
-    // TODO: rifare con spring boot
-
     public void start() {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
@@ -53,15 +51,6 @@ public class RegistryVerticle extends AbstractVerticle {
         err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
         response.end(err.toString());
     }
-
-    // private static void sendBadRequest(HttpServerResponse response, Exception ex) {
-    //     response.setStatusCode(400);
-    //     response.putHeader("content-type", "application/json");
-
-    //     JsonObject err = new JsonObject();
-    //     err.put("error", Optional.ofNullable(ex.getMessage()).orElse(ex.toString()));
-    //     response.end(err.toString());
-    // }
 
     protected void registerUsersManager(RoutingContext context) {
         logger.log(Level.INFO, "Received 'registerUsersManager'");
