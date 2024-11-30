@@ -118,6 +118,10 @@ services:
       - USERS_URL=http://users:9100
       - EBIKES_URL=http://ebikes:9200
       - RIDES_URL=http://rides:9300
+    command: >
+      sh -c "
+      sleep 30;
+      mvn exec:java -Dexec.mainClass=sap.ass2.rides.RidesManagerLauncher"
 
   testrunner:
     build:
@@ -139,6 +143,10 @@ services:
       - EBIKES_URL=http://ebikes:9200
       - APIGATEWAY_URL=http://apigateway:10000
       - RIDES_URL=http://rides:9300
+    command: >
+      sh -c "
+      sleep 40;
+      mvn test"
 
 networks:
   ebikapp_network:
