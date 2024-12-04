@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-
 public class RideDialog extends JDialog {
     private JComboBox<String> bikesComboBox;        
     private JButton startButton;                    

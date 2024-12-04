@@ -11,11 +11,14 @@ import io.vertx.core.http.WebSocket;
 import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * HTTP client that interacts to the rides service.
+ */
 public class RidesProxy implements RidesAPI {
     private HttpClient client;
-	private Vertx vertx;
-	private URL ridesManagerAddress;
-	private WebSocket webSocket;
+	private Vertx vertx;	// Useful for HTTP client implementation.
+	private URL appAddress;	// API gateway address.
+	private WebSocket webSocket;	// We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
 	
 	public RidesProxy(URL appAddress) {
 		if (Vertx.currentContext() != null) {
@@ -24,7 +27,7 @@ public class RidesProxy implements RidesAPI {
 			vertx = Vertx.vertx();
 		}
 		
-		this.ridesManagerAddress = appAddress;
+		this.appAddress = appAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(appAddress.getHost())
             .setDefaultPort(appAddress.getPort());
@@ -40,14 +43,15 @@ public class RidesProxy implements RidesAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonObject("ride"));
+					p.complete(obj.getJsonObject("ride"));	// Completes the promise for the user GUI.
 				});
 			});
+
+			// Request setup before sending.
             req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("userId", userID);
 			body.put("ebikeId", ebikeID);
-
 			String payload = body.encodePrettily();
 		    req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
@@ -67,14 +71,15 @@ public class RidesProxy implements RidesAPI {
 		.onSuccess(req -> {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
-					p.complete();
+					p.complete();	// Completes the promise for the user GUI.
 				});
 			});
+
+			// Request setup before sending.
             req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("rideId", rideID);
 			body.put("userId", userID);
-			
 			String payload = body.encodePrettily();
 		    req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
@@ -87,28 +92,32 @@ public class RidesProxy implements RidesAPI {
     }
 
 	@Override
-	public Future<JsonObject> subscribeToRideEvents(String rideId, RideEventObserver observer) {
+	public Future<JsonObject> subscribeToRideEvents(String rideId, RideEventObserver observer) {	// observer = user gui.
 		Promise<JsonObject> p = Promise.promise();
 		
+		// Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
-				  .setHost(this.ridesManagerAddress.getHost())
-				  .setPort(this.ridesManagerAddress.getPort())
+				  .setHost(this.appAddress.getHost())
+				  .setPort(this.appAddress.getPort())
 				  .setURI("/api/rides/" + rideId + "/events")
 				  .setAllowOriginHeader(false);
 		
 		client
 		.webSocket(wsoptions)
-		.onComplete(res -> {
+		.onComplete(res -> {	// Waiting for web socket opening.
             if (res.succeeded()) {
                 this.webSocket = res.result();
                 System.out.println("Connected!");
                 this.webSocket.textMessageHandler(data -> {
                     JsonObject obj = new JsonObject(data);
                     String evType = obj.getString("event");
+					// Event type discovery.
                     if (evType.equals("subscription-started")) {
-                        JsonObject ebike = obj.getJsonObject("ebike");
+                        // The message contains the ride to watch.
+						JsonObject ebike = obj.getJsonObject("ebike");
                         p.complete(ebike);
                     } else if (evType.equals("ride-step")) {
+						// Ride parameters of the ride that has made a step.
 						Double x = obj.getDouble("x");
                         Double y = obj.getDouble("y");
 						Double directionX = obj.getDouble("dirX");
@@ -116,10 +125,12 @@ public class RidesProxy implements RidesAPI {
 						Double speed = obj.getDouble("speed");
 						Integer batteryLevel = obj.getInteger("batteryLevel");
 						
+						// Notify event to the user GUI.
 						observer.rideStep(rideId, x, y, directionX, directionY, speed, batteryLevel);
                     } else if (evType.equals("ride-end")) {
                         String reason = obj.getString("reason");
 
+						// Notify event to the user GUI.
                         observer.rideEnded(rideId, reason);
                     }
                 });
@@ -133,6 +144,7 @@ public class RidesProxy implements RidesAPI {
 
 	@Override
 	public void unsubscribeFromRideEvents() {
+		// Writes a message to the rides proxy of the rides service asking for unsubscription.
 		this.webSocket.writeTextMessage("unsubscribe")
 			.onComplete(h -> {
 				this.webSocket.close();

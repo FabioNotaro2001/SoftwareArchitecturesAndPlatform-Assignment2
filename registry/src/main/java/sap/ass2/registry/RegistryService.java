@@ -1,7 +1,6 @@
 package sap.ass2.registry;
 
 import java.net.URL;
-
 import sap.ass2.registry.domain.RegistryAPI;
 import sap.ass2.registry.domain.RegistryImpl;
 import sap.ass2.registry.infrastructure.RegistryController;

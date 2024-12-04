@@ -13,10 +13,13 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.admingui.domain.EbikeState;
 
+/**
+ * HTTP client that interacts to the ebikes service.
+ */
 public class EbikesProxy implements EbikesAPI {
     private HttpClient client;
-	private Vertx vertx;
-	private URL ebikesManagerAddress;
+	private Vertx vertx;	// Useful for HTTP client implementation.
+	private URL appAddress;	// API gateway address.
 	
 	public EbikesProxy(URL appAddress) {
 		if (Vertx.currentContext() != null) {
@@ -25,7 +28,7 @@ public class EbikesProxy implements EbikesAPI {
 			vertx = Vertx.vertx();
 		}
 		
-		this.ebikesManagerAddress = appAddress;
+		this.appAddress = appAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(appAddress.getHost())
             .setDefaultPort(appAddress.getPort());
@@ -41,7 +44,7 @@ public class EbikesProxy implements EbikesAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonArray("ebikes"));
+					p.complete(obj.getJsonArray("ebikes"));	// Completes the promise for the admin GUI.
 				});
 			});
 			req.send();
@@ -61,15 +64,16 @@ public class EbikesProxy implements EbikesAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonObject("ebike"));
+					p.complete(obj.getJsonObject("ebike"));	// Completes the promise for the admin GUI.
 				});
 			});
+
+			// Request setup before sending.
             req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("ebikeId", ebikeID);
 			body.put("x", locationX);
 			body.put("y", locationY);
-
 			String payload = body.encodePrettily();
 		    req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
@@ -89,13 +93,14 @@ public class EbikesProxy implements EbikesAPI {
 		.onSuccess(req -> {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
-					p.complete();
+					p.complete();	// Completes the promise for the admin GUI.
 				});
 			});
+
+			// Request setup before sending.
             req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("ebikeId", ebikeID);
-
 			String payload = body.encodePrettily();
 		    req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
@@ -108,28 +113,33 @@ public class EbikesProxy implements EbikesAPI {
     }
 
     @Override
-    public Future<JsonArray> subscribeToEbikeEvents(EbikeEventObserver observer) {
+    public Future<JsonArray> subscribeToEbikeEvents(EbikeEventObserver observer) {	// observer = admin gui.
         Promise<JsonArray> p = Promise.promise();
 		
+		// Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
-				  .setHost(this.ebikesManagerAddress.getHost())
-				  .setPort(this.ebikesManagerAddress.getPort())
+				  .setHost(this.appAddress.getHost())
+				  .setPort(this.appAddress.getPort())
 				  .setURI("/api/ebikes/events")
 				  .setAllowOriginHeader(false);
 		
 		client
 		.webSocket(wsoptions)
-		.onComplete(res -> {
+		.onComplete(res -> {	// Waiting for web socket opening.
             if (res.succeeded()) {
                 WebSocket ws = res.result();
                 System.out.println("Connected!");
                 ws.textMessageHandler(data -> {
                     JsonObject obj = new JsonObject(data);
                     String evType = obj.getString("event");
+
+					// Event type discovery.
                     if (evType.equals("subscription-started")) {
+						// The message contains the ebikes array.
                         JsonArray ebikes = obj.getJsonArray("ebikes");
                         p.complete(ebikes);
                     } else if (evType.equals("ebike-update")) {
+						// Bike parameters to change.
                         String ebikeID = obj.getString("ebikeId");
                         String state = obj.getString("state");
                         double locX = obj.getDouble("x");
@@ -139,10 +149,12 @@ public class EbikesProxy implements EbikesAPI {
                         double speed = obj.getDouble("speed");
                         int batteryLevel = obj.getInteger("batteryLevel");
                         
+						// Notify event to the admin GUI.
                         observer.bikeUpdated(ebikeID, EbikeState.valueOf(state), locX, locY, dirX, dirY, speed, batteryLevel);
                     } else if (evType.equals("ebike-remove")) {
                         String ebikeID = obj.getString("ebikeId");
                         
+						// Notify event to the admin GUI.
                         observer.bikeRemoved(ebikeID);
                     }
                 });

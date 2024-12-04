@@ -1,14 +1,12 @@
 package sap.ass2.admingui.gui;
 
 import javax.swing.*;
-
 import sap.ass2.admingui.library.ApplicationAPI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class AddEBikeDialog extends JDialog {
-
     private JTextField idField;     
     private JTextField xCoordField; 
     private JTextField yCoordField; 
@@ -35,7 +33,6 @@ public class AddEBikeDialog extends JDialog {
     }
 
     private void setupLayout() {
-        
         JPanel inputPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         inputPanel.add(new JLabel("E-Bike ID:")); 
         inputPanel.add(idField); 
@@ -44,12 +41,10 @@ public class AddEBikeDialog extends JDialog {
         inputPanel.add(new JLabel("E-Bike location - Y coord:")); 
         inputPanel.add(yCoordField); 
 
-        
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(okButton); 
         buttonPanel.add(cancelButton); 
 
-        
         setLayout(new BorderLayout(10, 10));
         add(inputPanel, BorderLayout.CENTER); 
         add(buttonPanel, BorderLayout.SOUTH); 

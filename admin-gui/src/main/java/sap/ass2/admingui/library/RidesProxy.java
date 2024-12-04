@@ -1,7 +1,6 @@
 package sap.ass2.admingui.library;
 
 import java.net.URL;
-
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -13,10 +12,13 @@ import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * HTTP client that interacts to the rides service.
+ */
 public class RidesProxy implements RidesAPI {
     private HttpClient client;
-	private Vertx vertx;
-	private URL ridesManagerAddress;
+	private Vertx vertx;    // Useful for HTTP client implementation.
+	private URL appAddress; // API gateway address.
 	
 	public RidesProxy(URL appAddress) {
         if (Vertx.currentContext() != null) {
@@ -25,7 +27,7 @@ public class RidesProxy implements RidesAPI {
 			vertx = Vertx.vertx();
 		}
         
-		this.ridesManagerAddress = appAddress;
+		this.appAddress = appAddress;
 		HttpClientOptions options = new HttpClientOptions()
             .setDefaultHost(appAddress.getHost())
             .setDefaultPort(appAddress.getPort());
@@ -41,7 +43,7 @@ public class RidesProxy implements RidesAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonArray("rides"));
+					p.complete(obj.getJsonArray("rides"));  // Completes the promise for the admin GUI.
 				});
 			});
 			req.send();
@@ -53,34 +55,41 @@ public class RidesProxy implements RidesAPI {
     }
 
     @Override
-    public Future<JsonArray> subscribeToRideEvents(RideEventObserver observer) {
+    public Future<JsonArray> subscribeToRideEvents(RideEventObserver observer) {    // observer = admin gui.
         Promise<JsonArray> p = Promise.promise();
 		
+        // Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
-				  .setHost(this.ridesManagerAddress.getHost())
-				  .setPort(this.ridesManagerAddress.getPort())
+				  .setHost(this.appAddress.getHost())
+				  .setPort(this.appAddress.getPort())
 				  .setURI("/api/rides/events")
 				  .setAllowOriginHeader(false);
 		
 		client
 		.webSocket(wsoptions)
-		.onComplete(res -> {
+		.onComplete(res -> {    // Waiting for web socket opening.
             if (res.succeeded()) {
                 WebSocket ws = res.result();
                 System.out.println("Connected!");
                 ws.textMessageHandler(data -> {
                     JsonObject obj = new JsonObject(data);
                     String evType = obj.getString("event");
+
+                    // Event type discovery.
                     if (evType.equals("subscription-started")) {
+                        // The message contains the rides array.
                         JsonArray ebikes = obj.getJsonArray("rides");
                         p.complete(ebikes);
                     } else if (evType.equals("ride-start")) {
+                        // Rides parameters of the new ride.
                         String rideID = obj.getString("rideId");
                         String userID = obj.getString("userId");
                         String ebikeID = obj.getString("ebikeId");
                         
+                        // Notify event to the admin GUI.
                         observer.rideStarted(rideID, userID, ebikeID);
                     } else if (evType.equals("ride-step")) {
+                        // Ride parameters to change due to step done.
                         String rideID = obj.getString("rideId");
                         Double x = obj.getDouble("x");
                         Double y = obj.getDouble("y");
@@ -89,11 +98,13 @@ public class RidesProxy implements RidesAPI {
                         Double speed = obj.getDouble("speed");
                         Integer batteryLevel = obj.getInteger("batteryLevel");
                         
+                        // Notify event to the admin GUI.
                         observer.rideStep(rideID, x, y, directionX, directionY, speed, batteryLevel);
                     } else if (evType.equals("ride-end")) {
                         String rideID = obj.getString("rideId");
                         String reason = obj.getString("reason");
                         
+                        // Notify event to the admin GUI.
                         observer.rideEnded(rideID, reason);
                     }
                 });

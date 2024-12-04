@@ -1,4 +1,4 @@
-package sap.ass2.usergui.library;
+package sap.ass2.usergui.domain;
 
 public enum EbikeState { 
     AVAILABLE,     

@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RegistryImpl implements RegistryAPI {
-
+    // Maps that contain the (name, URL) pair for each service.
     private Map<String, URL> ebikesManagers;
     private Map<String, URL> ridesManagers;
     private Map<String, URL> usersManagers;

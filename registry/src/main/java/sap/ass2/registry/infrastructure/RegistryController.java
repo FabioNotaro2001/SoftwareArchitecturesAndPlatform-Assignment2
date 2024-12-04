@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 import io.vertx.core.Vertx;
 import sap.ass2.registry.domain.RegistryAPI;
 
+// Deploy the registey verticle.
 public class RegistryController {
     private int port;
     private RegistryVerticle service;

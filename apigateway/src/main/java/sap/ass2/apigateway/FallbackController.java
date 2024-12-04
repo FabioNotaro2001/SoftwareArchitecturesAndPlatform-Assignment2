@@ -3,6 +3,7 @@ package sap.ass2.apigateway;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// If the circuit breaker finds out that a service is not reachable, it use the following fallbacks.
 @RestController
 public class FallbackController {
     @GetMapping("/fallback/registry")

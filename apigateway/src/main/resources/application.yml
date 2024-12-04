@@ -3,10 +3,10 @@ server:
 
 spring:
   application:
-    name: API-GATEWAY
+    name: API-GATEWAY 
 
   cloud:
-    circuitbreaker:
+    circuitbreaker: # Circuit breaker pattern.
       resilience4j:
         enabled: true
 
@@ -14,7 +14,7 @@ logging:
   level:
     org.springframework.cloud.gateway: DEBUG
 
-management:
+management: # Application metrics pattern.
   endpoints:
     web:
       exposure:

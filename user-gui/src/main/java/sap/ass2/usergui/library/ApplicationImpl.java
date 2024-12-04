@@ -7,7 +7,12 @@ public class ApplicationImpl implements ApplicationAPI {
     private EbikesAPI ebikes;
     private RidesAPI rides;
 
+    /**
+     * 
+     * @param appAddress is the API gateway address.
+     */
     public ApplicationImpl(URL appAddress) {
+        // Despite using the same address, they are specialized.
         this.users = new UsersProxy(appAddress);
         this.ebikes = new EbikesProxy(appAddress);
         this.rides = new RidesProxy(appAddress);

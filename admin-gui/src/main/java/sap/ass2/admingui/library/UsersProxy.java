@@ -12,10 +12,13 @@ import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * HTTP client that interacts to the users service.
+ */
 public class UsersProxy implements UsersAPI {
     private HttpClient client;
-	private Vertx vertx;
-	private URL usersManagerAddress;
+	private Vertx vertx;	// Useful for HTTP client implementation.
+	private URL appAddress;	// API gateway address.
 	
 	public UsersProxy(URL appAddress) {
 		if (Vertx.currentContext() != null) {
@@ -24,7 +27,7 @@ public class UsersProxy implements UsersAPI {
 			vertx = Vertx.vertx();
 		}
 		
-		this.usersManagerAddress = appAddress;
+		this.appAddress = appAddress;
 		HttpClientOptions options = new HttpClientOptions()
 			.setDefaultHost(appAddress.getHost())
 			.setDefaultPort(appAddress.getPort());
@@ -40,7 +43,7 @@ public class UsersProxy implements UsersAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonArray("users"));
+					p.complete(obj.getJsonArray("users"));	// Completes the promise for the admin GUI.
 				});
 			});
 			req.send();
@@ -52,31 +55,38 @@ public class UsersProxy implements UsersAPI {
     }
 
     @Override
-    public Future<JsonArray> subscribeToUsersEvents(UserEventObserver observer) {
+    public Future<JsonArray> subscribeToUsersEvents(UserEventObserver observer) {	// observer = admin gui.
         Promise<JsonArray> p = Promise.promise();
 		
+		// Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
-				  .setHost(this.usersManagerAddress.getHost())
-				  .setPort(this.usersManagerAddress.getPort())
+				  .setHost(this.appAddress.getHost())
+				  .setPort(this.appAddress.getPort())
 				  .setURI("/api/users/events")
 				  .setAllowOriginHeader(false);
 		
 		client
 		.webSocket(wsoptions)
-		.onComplete(res -> {
+		.onComplete(res -> {	
             if (res.succeeded()) {
                 WebSocket ws = res.result();
                 System.out.println("Connected!");
                 ws.textMessageHandler(data -> {
                     JsonObject obj = new JsonObject(data);
                     String evType = obj.getString("event");
-                    if (evType.equals("subscription-started")) {
+                    
+					// Event type discovery.
+					if (evType.equals("subscription-started")) {
+						// The message contains the users array.
                         JsonArray users = obj.getJsonArray("users");
                         p.complete(users);
                     } else if (evType.equals("user-update")) {
-                        String userID = obj.getString("userId");
+                        // User parameters to change.
+						String userID = obj.getString("userId");
                         int credit = obj.getInteger("credit");
-                        observer.userUpdated(userID, credit);
+                        
+						// Notify event to the admin GUI.
+						observer.userUpdated(userID, credit);
                     }
                 });
             } else {

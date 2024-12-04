@@ -25,9 +25,10 @@ public class RegistryVerticle extends AbstractVerticle {
     }
 
     public void start() {
-        HttpServer server = vertx.createHttpServer();
-        Router router = Router.router(vertx);
+        HttpServer server = vertx.createHttpServer();   // Creates an HTTP server to answer to the service discovery requests.
         
+        // The router handles each request with a different handler according to the path in the request (POST=register, GET=lookup).
+        Router router = Router.router(vertx);   
         router.route(HttpMethod.POST, "/api/registry/users-manager").handler(this::registerUsersManager);
         router.route(HttpMethod.POST, "/api/registry/ebikes-manager").handler(this::registerEbikesManager);
         router.route(HttpMethod.POST, "/api/registry/rides-manager").handler(this::registerRidesManager);
@@ -60,6 +61,7 @@ public class RegistryVerticle extends AbstractVerticle {
             String name = data.getString("name");
 			String address = data.getString("address");			
 
+            // Prepare the response, update the internal map and send back the response.
             JsonObject response = new JsonObject();
             try {
                 var url = URI.create(address).toURL();
@@ -79,6 +81,7 @@ public class RegistryVerticle extends AbstractVerticle {
             String name = data.getString("name");
 			String address = data.getString("address");			
 
+            // Prepare the response, update the internal map and send back the response.
             JsonObject response = new JsonObject();
             try {
                 var url = URI.create(address).toURL();
@@ -98,6 +101,7 @@ public class RegistryVerticle extends AbstractVerticle {
             String name = data.getString("name");
 			String address = data.getString("address");			
 
+            // Prepare the response, update the internal map and send back the response.
             JsonObject response = new JsonObject();
             try {
                 var url = URI.create(address).toURL();
@@ -115,6 +119,7 @@ public class RegistryVerticle extends AbstractVerticle {
         JsonObject response = new JsonObject();
         String name = context.pathParam("usersManagerName");
         try {
+            // Query the internal map and send back the response.
             var usersManagerOpt = this.registryAPI.lookupUsersManager(name);
             if (usersManagerOpt.isPresent()) {
                 response.put("usersManager", usersManagerOpt.get());
@@ -131,6 +136,7 @@ public class RegistryVerticle extends AbstractVerticle {
         JsonObject response = new JsonObject();
         String name = context.pathParam("ebikesManagerName");
         try {
+            // Query the internal map and send back the response.
             var ebikesManagerOpt = this.registryAPI.lookupEbikesManager(name);
             if (ebikesManagerOpt.isPresent()) {
                 response.put("ebikesManager", ebikesManagerOpt.get());
@@ -147,6 +153,7 @@ public class RegistryVerticle extends AbstractVerticle {
         JsonObject response = new JsonObject();
         String name = context.pathParam("ridesManagerName");
         try {
+            // Query the internal map and send back the response.
             var ridesManagerOpt = this.registryAPI.lookupRidesManager(name);
             if (ridesManagerOpt.isPresent()) {
                 response.put("ridesManager", ridesManagerOpt.get());

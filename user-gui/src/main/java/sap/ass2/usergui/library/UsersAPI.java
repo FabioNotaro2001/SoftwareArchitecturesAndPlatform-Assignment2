@@ -10,5 +10,12 @@ public interface UsersAPI {
     Future<JsonObject> createUser(String userID);
     Future<Optional<JsonObject>> getUserByID(String userID);
     Future<Void> rechargeCredit(String userID, int credit);
+
+    /**
+     * Allows the user GUI to subscribe to the user events.
+     * @param userID
+     * @param observer
+     * @return
+     */
     Future<JsonObject> subscribeToUserEvents(String userID, UserEventObserver observer);
 }

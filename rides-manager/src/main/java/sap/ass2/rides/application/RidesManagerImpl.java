@@ -16,16 +16,18 @@ import sap.ass2.rides.domain.User;
 import sap.ass2.rides.infrastructure.RidesExecutionVerticle;
 
 public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
-    private UsersManagerRemoteAPI usersManager;
-    private EbikesManagerRemoteAPI ebikesManager;
-    private List<Ride> rides;
+    private UsersManagerRemoteAPI usersManager; // Users service.
+    private EbikesManagerRemoteAPI ebikesManager;   // Ebikes service.
+    
+    private List<Ride> rides;   // Ongoing rides.
     private int nextRideId;
-    private List<RideEventObserver> observers;
-    private RidesExecutionVerticle rideExecutor;
+    private List<RideEventObserver> observers;  // observer = RidesManagerVerticle.
+    private RidesExecutionVerticle rideExecutor;    // Verticle that manages and executes the rides.
 
     public RidesManagerImpl(UsersManagerRemoteAPI usersManager, EbikesManagerRemoteAPI ebikesManager){
         this.usersManager = usersManager;
         this.ebikesManager = ebikesManager;
+        
         this.rides = Collections.synchronizedList(new ArrayList<>());
         this.nextRideId = 0;
         this.observers = Collections.synchronizedList(new ArrayList<>());
@@ -34,6 +36,7 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
         this.rideExecutor.launch();
     }
 
+    // Converts a ride to a JSON.
     private static JsonObject toJSON(Ride ride) {
         return new JsonObject()
             .put("rideId", ride.getId())
@@ -43,6 +46,7 @@ public class RidesManagerImpl implements RidesManagerAPI, RideEventObserver {
 
     @Override
     public Future<JsonArray> getAllRides() {
+        // succededFuture because we decided that every method should return a Future for consistency, so somewhere there is a succeededFuture to simulate a Future where normally it would not be needed.
         return Future.succeededFuture(this.rides.stream().map(RidesManagerImpl::toJSON).collect(JsonArray::new, JsonArray::add, JsonArray::addAll));
     }
 

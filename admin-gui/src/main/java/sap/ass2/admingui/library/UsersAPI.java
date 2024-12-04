@@ -5,5 +5,11 @@ import io.vertx.core.json.JsonArray;
 
 public interface UsersAPI {
     Future<JsonArray> getAllUsers();
+
+    /**
+     * Allows the admin GUI to subscribe to the users eventa.
+     * @param observer
+     * @return
+     */
     Future<JsonArray> subscribeToUsersEvents(UserEventObserver observer);
 }

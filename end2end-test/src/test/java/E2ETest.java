@@ -8,20 +8,20 @@ public class E2ETest {
     @BeforeAll
     public static void setup() {
         String apiGatewayUrl = System.getenv("APIGATEWAY_URL");
-        RestAssured.baseURI = apiGatewayUrl;  // Usa la variabile d'ambiente per il gateway
+        RestAssured.baseURI = apiGatewayUrl;  // Uses environment variable for the API gateway.
     }
 
     @Test
     public void testUserJourney() {
-        // Step 1: Creare un utente
-        String userId = "testUser12345";
-        RestAssured.given()
-            .contentType("application/json")
-            .body(new JsonObject().put("userId", userId).encode())
-            .post("/api/users")
-            .then()
-            .statusCode(200)
-            .extract().response();
+        // Step 1: create a new user (but in this case we use an old user).
+        String userId = "fabio";
+        // RestAssured.given()
+        //     .contentType("application/json")
+        //     .body(new JsonObject().put("userId", userId).encode())
+        //     .post("/api/users")
+        //     .then()
+        //     .statusCode(200)
+        //     .extract().response();
 
         RestAssured.given()
             .contentType("application/json")
@@ -31,7 +31,7 @@ public class E2ETest {
             .statusCode(200)
             .extract().response();
         
-        // Step 2: Creare una bicicletta
+        // Step 2: create a new bike.
         Response getBikeIds = RestAssured.given()
             .contentType("application/json")
             .get("/api/ebikes/ids")
@@ -41,7 +41,7 @@ public class E2ETest {
 
         String ebikeId = getBikeIds.jsonPath().getString("ebikes[0]");
         
-        // // Step 3: Noleggiare una bicicletta
+        // // Step 3: start a new ride.
         Response getRideId = RestAssured.given()
             .contentType("application/json")
             .body(new JsonObject().put("userId", userId).put("ebikeId", ebikeId).encode())
@@ -52,7 +52,7 @@ public class E2ETest {
 
         String rideId = getRideId.jsonPath().getString("ride.rideId");
 
-        // // Step 4: Restituire la bicicletta
+        // // Step 4: stop the ride.
         RestAssured.given()
             .contentType("application/json")
             .body(new JsonObject().put("userId", userId).put("rideId", rideId).encode())

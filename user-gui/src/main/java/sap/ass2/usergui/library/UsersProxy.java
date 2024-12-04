@@ -13,10 +13,13 @@ import io.vertx.core.http.WebSocketConnectOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * HTTP client that interacts to the users service.
+ */
 public class UsersProxy implements UsersAPI {
     private HttpClient client;
-	private Vertx vertx;
-	private URL usersManagerAddress;
+	private Vertx vertx;	// Useful for HTTP client implementation.
+	private URL appAddress;	// API gateway address.
 	
 	public UsersProxy(URL usersManagerAddress) {
 		if (Vertx.currentContext() != null) {
@@ -25,7 +28,7 @@ public class UsersProxy implements UsersAPI {
 			vertx = Vertx.vertx();
 		}
 		
-		this.usersManagerAddress = usersManagerAddress;
+		this.appAddress = usersManagerAddress;
 		HttpClientOptions options = new HttpClientOptions()
 			.setDefaultHost(usersManagerAddress.getHost())
 			.setDefaultPort(usersManagerAddress.getPort());
@@ -41,7 +44,7 @@ public class UsersProxy implements UsersAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonArray("users"));
+					p.complete(obj.getJsonArray("users"));	// Completes the promise for the user GUI.
 				});
 			});
 			req.send();
@@ -61,13 +64,14 @@ public class UsersProxy implements UsersAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(obj.getJsonObject("user"));
+					p.complete(obj.getJsonObject("user"));	// Completes the promise for the user GUI.
 				});
 			});
+
+			// Request setup before sending.
             req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("userId", userID);
-			
 			String payload = body.encodePrettily();
 		    req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
@@ -88,7 +92,7 @@ public class UsersProxy implements UsersAPI {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
 					JsonObject obj = buf.toJsonObject();
-					p.complete(Optional.ofNullable(obj.getJsonObject("user")));
+					p.complete(Optional.ofNullable(obj.getJsonObject("user")));	// Completes the promise for the user GUI.
 				});
 			});
 			req.send();
@@ -107,13 +111,14 @@ public class UsersProxy implements UsersAPI {
             .onSuccess(req -> {
                 req.response().onSuccess(response -> {
                     response.body().onSuccess(buf -> {
-                        p.complete();
+                        p.complete();	// Completes the promise for the user GUI.
                     });
                 });
+
+				// Request setup before sending.
                 req.putHeader("content-type", "application/json");
                 JsonObject body = new JsonObject();
                 body.put("credit", credit);
-                
                 String payload = body.encodePrettily();
                 req.putHeader("content-length", "" + payload.length());
                 req.write(payload);
@@ -127,12 +132,13 @@ public class UsersProxy implements UsersAPI {
 	}
 
 	@Override
-	public Future<JsonObject> subscribeToUserEvents(String userID, UserEventObserver observer) {
+	public Future<JsonObject> subscribeToUserEvents(String userID, UserEventObserver observer) {	// observer = user gui.
 		Promise<JsonObject> p = Promise.promise();
 		
+		// Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
 		WebSocketConnectOptions wsoptions = new WebSocketConnectOptions()
-				  .setHost(this.usersManagerAddress.getHost())
-				  .setPort(this.usersManagerAddress.getPort())
+				  .setHost(this.appAddress.getHost())
+				  .setPort(this.appAddress.getPort())
 				  .setURI("/api/users/" + userID + "/events")
 				  .setAllowOriginHeader(false);
 		
@@ -145,12 +151,17 @@ public class UsersProxy implements UsersAPI {
                 ws.textMessageHandler(data -> {
                     JsonObject obj = new JsonObject(data);
                     String evType = obj.getString("event");
-                    if (evType.equals("subscription-started")) {
-                        JsonObject user = obj.getJsonObject("user");
+                    
+					// Event type discovery.
+					if (evType.equals("subscription-started")) {
+                        // The message contains the user to watch.
+						JsonObject user = obj.getJsonObject("user");
                         p.complete(user);
                     } else if (evType.equals("user-update")) {
                         int credit = obj.getInteger("credit");
-                        observer.userUpdated(userID, credit);
+                        
+						// Notify event to the admin GUI.
+						observer.userUpdated(userID, credit);
                     }
                 });
             } else {

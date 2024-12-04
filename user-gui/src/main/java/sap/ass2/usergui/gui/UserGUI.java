@@ -190,7 +190,8 @@ public class UserGUI extends JFrame implements ActionListener, UserEventObserver
     @Override
     public void rideEnded(String rideID, String reason) {
         System.out.println("Ride ended.");
-        JOptionPane.showMessageDialog(this, reason, "Info", JOptionPane.INFORMATION_MESSAGE);
+        new Thread(() -> JOptionPane.showMessageDialog(this, reason, "Info", JOptionPane.INFORMATION_MESSAGE)).start();
+        
         this.launchedRide = null; 
                 
         this.startRideButton.setEnabled(true);
