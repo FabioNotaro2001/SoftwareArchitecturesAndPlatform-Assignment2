@@ -19,7 +19,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     private int port;
     private UsersManagerAPI usersAPI;
 
-    private static final String USER_MANAGER_EVENTS = "users-manager/events";
+    private static final String USER_MANAGER_EVENTS = "users-manager-events";   // Topic in which the verticle publishes events.
 
     static Logger logger = Logger.getLogger("[Users Manager Verticle]");
 
@@ -29,7 +29,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
     }
 
     public void start() {
-        HttpServer server = vertx.createHttpServer();
+        HttpServer server = vertx.createHttpServer();   // Creates HTTP server to handle the requests coming from the external proxies.
         Router router = Router.router(vertx);
         
         router.route(HttpMethod.GET, "/api/users").handler(this::getAllUsers);
@@ -158,19 +158,20 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
         });
     }
 
+    // Handle the request of an external proxy to subscribe for the events related to a specified user or all users.
     protected void handleEventSubscription(RoutingContext context){
         logger.log(Level.INFO, "Received subscription request");
 
         Optional<String> userID = Optional.ofNullable(context.pathParam("userId"));
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
-        wsFuture.onSuccess(webSocket -> {
+        wsFuture.onSuccess(webSocket -> {   // Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
             JsonObject reply = new JsonObject();
             
-            if(userID.isEmpty()){
+            if(userID.isEmpty()){   // Request to subscribe on all users.
                 JsonArray users = this.usersAPI.getAllUsers();
                 reply.put("users", users);
-            } else{
+            } else{ // Request to subscribe on a specific user.
                 Optional<JsonObject> user = this.usersAPI.getUserByID(userID.get());
                 if (user.isPresent()){
                     reply.put("user", user.get());
@@ -180,8 +181,10 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
                 }
             }
 
+            // Sends back the response.
             reply.put("event", "subscription-started");
             webSocket.writeTextMessage(reply.encodePrettily());
+
             var eventBus = vertx.eventBus();
             var consumer = eventBus.consumer(USER_MANAGER_EVENTS, msg -> {
                 JsonObject user = (JsonObject) msg.body();
@@ -192,6 +195,7 @@ public class UsersManagerVerticle extends AbstractVerticle implements UserEventO
                 }
             });
 
+            // Listens on web socket for unsubscribe messages.
             webSocket.textMessageHandler(data -> {
                 if(data.equals("unsubscribe")){
                     consumer.unregister();

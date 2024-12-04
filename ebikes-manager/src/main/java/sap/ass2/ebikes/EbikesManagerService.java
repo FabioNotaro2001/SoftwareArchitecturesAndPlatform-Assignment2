@@ -18,6 +18,7 @@ public class EbikesManagerService {
     }
 
     public void launch(){
+        // Starts the ebike controller, so that it can starts the service verticle.
         this.ebikesController = new EbikesManagerController(this.localAddress.getPort());
         this.ebikesController.init(this.ebikesManager);
     }

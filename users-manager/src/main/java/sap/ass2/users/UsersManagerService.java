@@ -18,6 +18,7 @@ public class UsersManagerService {
     }
 
     public void launch(){
+        // Starts the users controller, so that it can starts the service verticle.
         this.usersController = new UsersManagerController(this.localAddress.getPort());
         this.usersController.init(this.usersManager);
     }

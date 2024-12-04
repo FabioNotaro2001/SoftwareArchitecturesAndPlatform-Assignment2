@@ -19,6 +19,7 @@ public class RidesManagerService {
     }
 
     public void launch(){
+        // Starts the ride controller (so that it can start the RidesExecutionVerticle).
         this.ridesController = new RidesManagerController(this.localAddress.getPort());
         this.ridesController.init(this.ridesManager);
     }

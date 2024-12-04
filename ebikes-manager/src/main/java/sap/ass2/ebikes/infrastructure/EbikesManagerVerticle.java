@@ -19,21 +19,21 @@ import sap.ass2.ebikes.domain.EbikeEventObserver;
 public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEventObserver{
     private int port;
     private EbikesManagerAPI ebikesAPI;
-    private static final String EBIKES_MANAGER_EVENTS = "ebikes-manager/events";
+    private static final String EBIKES_MANAGER_EVENTS = "ebikes-manager-events";    // Topic in which the verticle publishes events.
     
+    // Events that this verticle can publish.
     private static final String UPDATE_EVENT = "ebike-update";
     private static final String REMOVE_EVENT = "ebike-remove";
 
     static Logger logger = Logger.getLogger("[Ebikes Manager Verticle]");	
 
-    
     public EbikesManagerVerticle(int port, EbikesManagerAPI ebikesAPI) {
         this.port = port;
         this.ebikesAPI = ebikesAPI;
     }
 
     public void start() {
-        HttpServer server = vertx.createHttpServer();
+        HttpServer server = vertx.createHttpServer();   // Creates HTTP server to handle the requests coming from the external proxies.
         Router router = Router.router(vertx);
         
         router.route(HttpMethod.GET, "/api/ebikes").handler(this::getAllEbikes);
@@ -181,19 +181,20 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
         });
     }
 
+    // Handle the request of an external proxy to subscribe for the events related to a specified bike or all bikes.
     protected void handleEventSubscription(RoutingContext context){
         logger.log(Level.INFO, "Received event subscription request");
 
         Optional<String> ebikeID = Optional.ofNullable(context.pathParam("ebikeId"));
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
-        wsFuture.onSuccess(webSocket -> {
+        wsFuture.onSuccess(webSocket -> {   // Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
             JsonObject reply = new JsonObject();
             
-            if(ebikeID.isEmpty()){
+            if(ebikeID.isEmpty()){  // Request to subscribe on all bikes.
                 JsonArray ebikes = this.ebikesAPI.getAllEbikes();
                 reply.put("ebikes", ebikes);
-            } else{
+            } else{ // Request to subscribe on a specific bike.
                 Optional<JsonObject> ebike = this.ebikesAPI.getEbikeByID(ebikeID.get());
                 if (ebike.isPresent()){
                     reply.put("ebike", ebike.get());
@@ -204,9 +205,10 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
             }
 
             reply.put("event", "subscription-started");
-            webSocket.writeTextMessage(reply.encodePrettily());
+            webSocket.writeTextMessage(reply.encodePrettily()); // Sends back the response.
+
             var eventBus = vertx.eventBus();
-            var consumer = eventBus.consumer(EBIKES_MANAGER_EVENTS, msg -> {
+            var consumer = eventBus.consumer(EBIKES_MANAGER_EVENTS, msg -> {    // Specifies the behavior to do when this verticles listens an event on the bus.            
                 JsonObject ebike = (JsonObject) msg.body();
                 if(ebikeID.isEmpty() || ebikeID.get().equals(ebike.getString("ebikeId"))){
                     logger.log(Level.INFO, "Sending event");
@@ -215,6 +217,7 @@ public class EbikesManagerVerticle extends AbstractVerticle implements EbikeEven
                 }
             });
 
+            // Listens on web socket for unsubscribe messages.
             webSocket.textMessageHandler(data -> {
                 if(data.equals("unsubscribe")){
                     consumer.unregister();

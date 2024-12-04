@@ -20,12 +20,14 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     private int port;
     private RidesManagerAPI ridesAPI;
     
-    private static final String RIDES_MANAGER_EVENTS = "rides-manager/events";
+    private static final String RIDES_MANAGER_EVENTS = "rides-manager-events";  // Topic in which the verticle publishes events.
     
+    // Possible keys for the getRideByID method.
     private static final String RIDE_ID_TYPE = "ride";
     private static final String USER_ID_TYPE = "user";
     private static final String EBIKE_ID_TYPE = "ebike";
     
+    // Events that this verticle can publish.
     private static final String START_EVENT = "ride-start";
     private static final String STEP_EVENT = "ride-step";
     private static final String END_EVENT = "ride-end";
@@ -38,7 +40,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
     }
 
     public void start() {
-        HttpServer server = vertx.createHttpServer();
+        HttpServer server = vertx.createHttpServer();   // Creates HTTP server to handle the requests coming from the external proxies.
         Router router = Router.router(vertx);
         
         router.route(HttpMethod.GET, "/api/rides").handler(this::getAllRides);
@@ -163,6 +165,7 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
         }
     }
 
+    // Handle the request of a proxy to subscribe for the events related to a specified ride or all rides.
     protected void handleEventSubscription(RoutingContext context){
         logger.log(Level.INFO, "Received subscription request");
 
@@ -170,15 +173,15 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
 
         HttpServerRequest request = context.request();
         var wsFuture = request.toWebSocket();
-        wsFuture.onSuccess(webSocket -> {
+        wsFuture.onSuccess(webSocket -> {   // Web socket configuration. We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
             JsonObject reply = new JsonObject();
             Future<Void> fut = null;
 
-            if (rideID.isEmpty()) {
+            if (rideID.isEmpty()) { // Request to subscribe on all rides.
                 fut = this.ridesAPI.getAllRides().onSuccess(rides -> {
                     reply.put("rides", rides);
                 }).compose(rides -> Future.succeededFuture());
-            } else {
+            } else {    // Request to subscribe on a specific ride.
                 fut = this.ridesAPI.getRideByRideID(rideID.get()).map(ride -> {
                     if (ride.isPresent()){
                         reply.put("ride", ride.get());
@@ -191,10 +194,11 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
             }
 
             fut.onSuccess(s -> {
-                reply.put("event", "subscription-started");
+                reply.put("event", "subscription-started"); // Sends back the response.
                 webSocket.writeTextMessage(reply.encodePrettily());
+
                 var eventBus = vertx.eventBus();
-                var consumer = eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> {                
+                var consumer = eventBus.consumer(RIDES_MANAGER_EVENTS, msg -> { // Specifies the behavior to do when this verticles listens an event on the bus.            
                     JsonObject ride = (JsonObject) msg.body();
                     if(rideID.isEmpty() || rideID.get().equals(ride.getString("rideId"))){
                         logger.log(Level.INFO, "Sending event " + ride.getString("event"));
@@ -202,7 +206,8 @@ public class RidesManagerVerticle extends AbstractVerticle implements RideEventO
                         webSocket.writeTextMessage(ride.encodePrettily());
                     }
                 });
-    
+                
+                // Listens on web socket for unsubscribe messages.
                 webSocket.textMessageHandler(data -> {
                     if(data.equals("unsubscribe")){
                         consumer.unregister();

@@ -10,9 +10,12 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * HTTP client that interacts to the users service.
+ */
 public class UsersManagerProxy implements UsersManagerRemoteAPI {
     private HttpClient client;
-	private Vertx vertx;
+	private Vertx vertx;	// Useful for HTTP client implementation.
 	
 	public UsersManagerProxy(URL usersManagerAddress) {
 		if (Vertx.currentContext() != null) {
@@ -55,19 +58,19 @@ public class UsersManagerProxy implements UsersManagerRemoteAPI {
 		.onSuccess(req -> {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
-					p.complete();
+					p.complete();	// Completes the promise for the RidesExecutionVerticle.
 				});
 			});
+
+			// Request setup before sending.
 			req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("userId", userID);
 			body.put("credit", amount);
-			
 			String payload = body.encodePrettily();
 			req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
 			req.send();
-
 		})
 		.onFailure(f -> {
 			p.fail(f.getMessage());

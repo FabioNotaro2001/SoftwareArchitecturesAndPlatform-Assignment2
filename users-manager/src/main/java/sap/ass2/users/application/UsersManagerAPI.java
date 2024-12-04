@@ -6,6 +6,9 @@ import io.vertx.core.json.JsonObject;
 import sap.ass2.users.domain.RepositoryException;
 import sap.ass2.users.domain.UserEventObserver;
 
+/**
+ * Java interface implemented by UsersManagerImpl.
+ */
 public interface UsersManagerAPI {
     JsonArray getAllUsers();
 
@@ -17,5 +20,9 @@ public interface UsersManagerAPI {
 
     void decreaseCredit(String userID, int amount) throws RepositoryException;
 
+    /**
+     * Allows the observer (UsersManagerVerticle, so indirectly the other services) to watch out the users.
+     * @param observer
+     */
     void subscribeToUserEvents(UserEventObserver observer);
 }

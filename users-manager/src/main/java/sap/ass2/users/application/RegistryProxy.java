@@ -9,9 +9,12 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * HTTP client that interacts to the registry service for the operations useful to the users service.
+ */
 public class RegistryProxy implements RegistryRemoteAPI{
-    private HttpClient client;
-	private Vertx vertx;
+    private HttpClient client;	
+	private Vertx vertx;	// Useful for HTTP client implementation.
 	
 	public RegistryProxy(URL registryAddress) {
 		vertx = Vertx.vertx();
@@ -21,6 +24,7 @@ public class RegistryProxy implements RegistryRemoteAPI{
 		client = vertx.createHttpClient(options);
 	}
 
+	// The users service doesn't need to know anything about the other services, so it simply registers itself on the registry.
 	@Override
 	public Future<Void> registerUsersManager(String name, URL address) {
 		Promise<Void> p = Promise.promise();
@@ -32,16 +36,16 @@ public class RegistryProxy implements RegistryRemoteAPI{
 					p.complete();
 				});
 			});
+
+			// Request setup before sending to the registry.
 			req.putHeader("content-type", "application/json");
 			JsonObject body = new JsonObject();
 			body.put("name", name);
 			body.put("address", address.toString());
-			
 			String payload = body.encodePrettily();
 			req.putHeader("content-length", "" + payload.length());
 			req.write(payload);
 			req.send();
-
 		})
 		.onFailure(f -> {
 			p.fail(f.getMessage());

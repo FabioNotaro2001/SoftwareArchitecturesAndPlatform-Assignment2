@@ -7,6 +7,9 @@ import sap.ass2.ebikes.domain.EbikeEventObserver;
 import sap.ass2.ebikes.domain.RepositoryException;
 import sap.ass2.ebikes.domain.Ebike.EbikeState;
 
+/**
+ * Java interface implemented by EbikesManagerImpl.
+ */
 public interface EbikesManagerAPI {
     JsonArray getAllEbikes();
 
@@ -25,5 +28,9 @@ public interface EbikesManagerAPI {
                     Optional<Double> speed, 
                     Optional<Integer> batteryLevel) throws RepositoryException, IllegalArgumentException;
 
+    /**
+     * Allows the observer (EbikesManagerVerticle, so indirectly the other services) to watch out the bikes.
+     * @param observer
+     */
     void subscribeToEbikeEvents(EbikeEventObserver observer);
 }

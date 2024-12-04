@@ -14,7 +14,7 @@ import sap.ass2.users.domain.UsersRepository;
 public class UsersManagerImpl implements UsersManagerAPI {
     private final UsersRepository userRepository;
     private final List<User> users;
-    private List<UserEventObserver> observers;
+    private List<UserEventObserver> observers;  // observer = UsersManagerVerticle.
 
     public UsersManagerImpl(UsersRepository userRepository) throws RepositoryException {
         this.userRepository = userRepository;
@@ -22,6 +22,7 @@ public class UsersManagerImpl implements UsersManagerAPI {
         this.users = Collections.synchronizedList(userRepository.getUsers());
     }
 
+    // Converts an user to a JSON.
     private static JsonObject toJSON(User user) {
         return new JsonObject()
             .put("userId", user.getId())

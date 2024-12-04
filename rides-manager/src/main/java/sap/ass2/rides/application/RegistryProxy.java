@@ -14,8 +14,8 @@ import io.vertx.core.json.JsonObject;
  * HTTP client that interacts to the registry service for the operations useful to the rides service.
  */
 public class RegistryProxy implements RegistryRemoteAPI{
-    private HttpClient client;	// Useful for HTTP client implementation.
-	private Vertx vertx;	// We use web socket because we want to estabilish a more sophisticated connection, not a simple request/response.
+    private HttpClient client;	
+	private Vertx vertx;	// Useful for HTTP client implementation.
 	
 	public RegistryProxy(URL registryAddress) {
 		if (Vertx.currentContext() != null) {
@@ -37,7 +37,7 @@ public class RegistryProxy implements RegistryRemoteAPI{
 		.onSuccess(req -> {
 			req.response().onSuccess(response -> {
 				response.body().onSuccess(buf -> {
-					p.complete();	// Completes the promise for the user GUI.
+					p.complete();
 				});
 			});
 

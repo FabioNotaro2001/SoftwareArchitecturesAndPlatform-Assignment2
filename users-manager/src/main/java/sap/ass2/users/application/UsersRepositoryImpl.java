@@ -22,6 +22,7 @@ public class UsersRepositoryImpl implements UsersRepository {
         makeDir(dbaseFolder);  
     }
 
+	// Save the given JSON object in the db folder.
     private void saveObj(String id, JsonObject obj) throws RepositoryException {
 		try {
 			FileWriter fw = new FileWriter(Path.of(dbaseFolder, id + ".json").toString());
@@ -47,7 +48,9 @@ public class UsersRepositoryImpl implements UsersRepository {
 		}
 	}
 
-
+	/**
+	 * // Converts the given user into a JSON object and then save it into the DB.
+	 */
     @Override
     public void saveUser(User user) throws RepositoryException {
 		JsonObject obj = new JsonObject();

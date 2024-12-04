@@ -4,6 +4,7 @@ import java.util.Optional;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import sap.ass2.rides.domain.EbikeState;
+
 // Interface that describes the operations that can be done with the ebikes service.
 public interface EbikesManagerRemoteAPI {
     Future<Optional<JsonObject>> getBikeByID(String bikeID);

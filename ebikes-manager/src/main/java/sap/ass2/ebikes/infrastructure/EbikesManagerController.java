@@ -3,6 +3,7 @@ package sap.ass2.ebikes.infrastructure;
 import io.vertx.core.Vertx;
 import sap.ass2.ebikes.application.EbikesManagerAPI;
 
+/** Class responsible for EbikesManagerVerticle deployment.*/
 public class EbikesManagerController {
     private int port;
     private EbikesManagerVerticle service;
@@ -15,6 +16,6 @@ public class EbikesManagerController {
         this.service = new EbikesManagerVerticle(this.port, ebikesAPI);
         Vertx v = Vertx.vertx();
         v.deployVerticle(this.service);
-        ebikesAPI.subscribeToEbikeEvents(this.service);
+        ebikesAPI.subscribeToEbikeEvents(this.service); // Subscribes the verticle to the events of the manager.
     }
 }

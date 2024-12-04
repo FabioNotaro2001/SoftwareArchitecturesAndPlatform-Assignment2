@@ -3,7 +3,6 @@ package sap.ass2.ebikes.domain;
 public class Ebike  {	
     private String id; 
     
-    
     public enum EbikeState { 
         AVAILABLE,      
         IN_USE,        

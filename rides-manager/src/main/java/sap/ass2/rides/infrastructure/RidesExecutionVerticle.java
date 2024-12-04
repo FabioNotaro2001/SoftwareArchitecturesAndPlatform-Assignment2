@@ -19,20 +19,21 @@ import sap.ass2.rides.domain.RideEventObserver;
 import sap.ass2.rides.domain.User;
 
 public class RidesExecutionVerticle extends AbstractVerticle {
+    // Events that this verticle can publish.
     private static String RIDES_STEP = "rides-step";
     private static String RIDE_STOP = "ride-stop";
 
     private RideEventObserver observer;
-    private EbikesManagerRemoteAPI ebikesManager;
-    private UsersManagerRemoteAPI usersManager;
+    private EbikesManagerRemoteAPI ebikesManager;   // Ebikes service.
+    private UsersManagerRemoteAPI usersManager; // Users service.
     private boolean doLoop = false;
 
     // The key is rideID for both.
-    Map<String, MessageConsumer<String>> rides;
-    Map<String, TimeVariables> timeVars;
+    Map<String, MessageConsumer<String>> rides; // Consumer on event loop.
+    Map<String, TimeVariables> timeVars;    // Temporal variables for the ride (for example last credit decreased), useful to decide when the verticle has to decrease credit or battery level.
     Map<String, RideStopReason> stopRideRequested;
 
-    private MessageConsumer<Object> loopConsumer;
+    private MessageConsumer<Object> loopConsumer;   // Consumer thats periodically sends events to the rides to make them proceed.
 
     static Logger logger = Logger.getLogger("[Rides Executor Verticle]");	
 
@@ -60,10 +61,10 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 	}
 
     public void start() {
-        // Consumer for events called from outside, specifically for stopping rides.
+        // Consumer that handles the stopping ride request (called from outside).
         this.vertx.eventBus().<String>consumer(RIDE_STOP, pair -> {
             var args = pair.body().split(" ");
-            this.stopRideRequested.put(args[0], RideStopReason.valueOf(args[1]));
+            this.stopRideRequested.put(args[0], RideStopReason.valueOf(args[1]));   // Add request to the map containing stop reasons.
         });
     
         var eventBus = this.vertx.eventBus();
@@ -73,12 +74,12 @@ public class RidesExecutionVerticle extends AbstractVerticle {
             if(!this.doLoop){
                 return;
             }
-            this.vertx.executeBlocking(() -> {
+            this.vertx.executeBlocking(() -> {  // executeBlocking to execute the sleep in a different thread, so that we don't stop the main thread (in this time the rides must complete their step).
                 Thread.sleep(500);
                 return null;
             }).onComplete(h -> {
                 if (!rides.isEmpty()) {
-                    eventBus.publish(RIDES_STEP, null);
+                    eventBus.publish(RIDES_STEP, null); // Ask for the next step (to himself).
                     logger.log(Level.INFO, "LOOP STEP");
                 } else {
                     this.doLoop = false;
@@ -88,10 +89,12 @@ public class RidesExecutionVerticle extends AbstractVerticle {
         });
     }
 
+    // Converts a JSON into an user.
     private static User jsonObjToUser(JsonObject obj) {
         return new User(obj.getString("userId"), obj.getInteger("credit"));
     }
 
+    // Converts a JSON into a bike.
     private static Ebike jsonObjToEbike(JsonObject obj) {
         return new Ebike(obj.getString("ebikeId"), EbikeState.valueOf(obj.getString("state")), obj.getDouble("x"),
                 obj.getDouble("y"), obj.getDouble("dirX"), obj.getDouble("dirY"), obj.getDouble("speed"),
@@ -117,6 +120,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
         return List.of(xN / module, yN / module); // Returns the rotated and normalized vector.
     }
 
+    // Called by RidesManager.
     public void launchRide(String rideID, String userID, String ebikeID) {
         this.timeVars.put(rideID, TimeVariables.now());
 
@@ -129,6 +133,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 
             Future.all(ebikeFuture, userFuture)
                 .onSuccess(cf -> {
+                    // Checks of the ride must be stopped.
                     var stopRequestedOpt = Optional.ofNullable(this.stopRideRequested.get(rideID));
                     if (stopRequestedOpt.isPresent()) {
                         this.stopRideRequested.remove(rideID);
@@ -215,6 +220,7 @@ public class RidesExecutionVerticle extends AbstractVerticle {
 
                         logger.log(Level.INFO, "Ride " + rideID + " event");
                     } else {
+                        // The ride cannot proceed (insufficient credit or battery level).
                         this.ebikesManager.updateBike(ebikeID, Optional.of(ebike.batteryLevel() > 0 ? EbikeState.AVAILABLE : EbikeState.MAINTENANCE),
                             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 

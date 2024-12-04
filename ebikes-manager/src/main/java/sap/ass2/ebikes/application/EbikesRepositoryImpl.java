@@ -18,7 +18,6 @@ import sap.ass2.ebikes.domain.RepositoryException;
 import sap.ass2.ebikes.domain.V2d;
 
 public class EbikesRepositoryImpl implements EbikesRepository {
-
     private String dbaseFolder;            
 
     public EbikesRepositoryImpl() {
@@ -26,6 +25,7 @@ public class EbikesRepositoryImpl implements EbikesRepository {
         makeDir(dbaseFolder);  
     }
 
+	// Save the given JSON object in the db folder.
     private void saveObj(String id, JsonObject obj) throws RepositoryException {
 		try {
 			FileWriter fw = new FileWriter(Path.of(dbaseFolder, id + ".json").toString());
@@ -51,6 +51,7 @@ public class EbikesRepositoryImpl implements EbikesRepository {
 		}
 	}
 
+	/** // Converts the given bike into a JSON object and then save it into the DB. */
     @Override
     public void saveEbike(Ebike eBike) throws RepositoryException {
 		JsonObject obj = new JsonObject();

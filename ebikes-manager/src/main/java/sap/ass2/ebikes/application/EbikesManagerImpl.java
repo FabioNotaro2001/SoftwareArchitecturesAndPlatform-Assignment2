@@ -15,18 +15,17 @@ import sap.ass2.ebikes.domain.RepositoryException;
 import sap.ass2.ebikes.domain.V2d;
 
 public class EbikesManagerImpl implements EbikesManagerAPI {
-
     private final EbikesRepository ebikeRepository;
     private final List<Ebike> ebikes;
-    private List<EbikeEventObserver> observers;
+    private List<EbikeEventObserver> observers; // observer = EbikesManagerVerticle.
 
     public EbikesManagerImpl(EbikesRepository repository) throws RepositoryException {
         this.ebikeRepository = repository;
         this.ebikes = Collections.synchronizedList(ebikeRepository.getEbikes());
         this.observers = Collections.synchronizedList(new ArrayList<>());
-        
     }
 
+    // Converts an ebike to a JSON.
     private static JsonObject toJSON(Ebike ebike) {
         return new JsonObject()
             .put("ebikeId", ebike.getId())
