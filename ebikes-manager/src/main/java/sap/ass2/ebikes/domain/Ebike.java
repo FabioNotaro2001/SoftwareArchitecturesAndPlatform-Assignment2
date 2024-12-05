@@ -1,6 +1,8 @@
-package sap.ass2.ebikes.domain; 
+package sap.ass2.ebikes.domain;
 
-public class Ebike  {	
+import sap.ddd.Entity;
+
+public class Ebike implements Entity<String> {	
     private String id; 
     
     public enum EbikeState { 

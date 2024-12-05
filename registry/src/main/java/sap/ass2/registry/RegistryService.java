@@ -12,7 +12,7 @@ public class RegistryService {
 
     public RegistryService(URL localAddress) {
         this.localAddress = localAddress;
-        this.registry = new RegistryImpl();
+        this.registry = new RegistryImpl("registry");
     }
 
     public void launch(){

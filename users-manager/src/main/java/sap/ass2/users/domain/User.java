@@ -1,6 +1,8 @@
 package sap.ass2.users.domain;
 
-public class User {
+import sap.ddd.Entity;
+
+public class User implements Entity<String> {
     private String id;      
     private int credit;     
 

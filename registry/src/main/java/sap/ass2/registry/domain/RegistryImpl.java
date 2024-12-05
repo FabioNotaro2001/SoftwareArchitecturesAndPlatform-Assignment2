@@ -5,16 +5,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RegistryImpl implements RegistryAPI {
+import sap.ddd.Aggregate;
+
+public class RegistryImpl implements RegistryAPI, Aggregate<String> {
+    private String registryId;
     // Maps that contain the (name, URL) pair for each service.
     private Map<String, URL> ebikesManagers;
     private Map<String, URL> ridesManagers;
     private Map<String, URL> usersManagers;
 
-    public RegistryImpl() {
+    public RegistryImpl(String registryId) {
+        this.registryId = registryId;
         this.ebikesManagers = new ConcurrentHashMap<>();
         this.ridesManagers = new ConcurrentHashMap<>();
         this.usersManagers = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public String getId() {
+        return this.registryId;
     }
 
     @Override

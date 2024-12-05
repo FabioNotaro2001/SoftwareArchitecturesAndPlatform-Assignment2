@@ -1,6 +1,8 @@
 package sap.ass2.ebikes.domain;
 
-public class P2d implements java.io.Serializable {
+import sap.ddd.ValueObject;
+
+public class P2d implements java.io.Serializable, ValueObject {
     private double x, y; 
 
     public P2d(double x, double y) {

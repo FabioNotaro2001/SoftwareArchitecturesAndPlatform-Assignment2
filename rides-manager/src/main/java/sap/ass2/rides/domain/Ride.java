@@ -3,7 +3,9 @@ package sap.ass2.rides.domain;
 import java.util.Date;
 import java.util.Optional;
 
-public class Ride {
+import sap.ddd.Aggregate;
+
+public class Ride implements Aggregate<String>{
     private Date startedDate;          
     private Optional<Date> endDate;    
     private User user;                  
