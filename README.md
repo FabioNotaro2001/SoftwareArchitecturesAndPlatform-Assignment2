@@ -6,14 +6,14 @@ This repository contains the implementation for Assignment 2 of the Software Arc
 
 The project is organized into several microservices, each with its own directory:
 
-- `admin-gui`: Admin interface for managing the platform.
-- `apigateway`: API Gateway for routing requests to appropriate services.
-- `ebikes-manager`: Service for managing electric bikes.
-- `end2end-test`: End-to-end tests for the platform.
-- `registry`: Service registry for microservices discovery.
-- `rides-manager`: Service for managing rides.
-- `user-gui`: User interface for interacting with the platform.
-- `users-manager`: Service for managing users.
+- `admin-gui` -> admin interface for managing the platform
+- `apigateway` -> API Gateway for routing requests to appropriate services
+- `ebikes-manager` -> service for managing electric bikes
+- `end2end-test` -> end-to-end tests for the platform
+- `registry` -> service registry for microservices discovery
+- `rides-manager` -> service for managing rides
+- `user-gui` -> user interface for interacting with the platform
+- `users-manager` -> service for managing users.
 
 ## Prerequisites
 
